@@ -65,40 +65,47 @@ Ngandung adalah aplikasi berbasis web yang menyediakan informasi lengkap tentang
 | 2   | Rating & Review Toko    | Pengguna dapat memberikan rating dengan range 1-5 dan review berupa teks singkat ke toko yang tersedia.                                                 | Admin memiliki permission sama seperti user, ditambah admin juga dapat menghapus rating dan review yang tidak sesuai dengan ketentuan yang berlaku. |
 | 3   | Toko Favorit            | Pengguna dapat menyimpan toko yang disukai ke 'Toko Favorit' yang dimiliki setiap akun pengguna.                                                        | Admin memiliki permission sama seperti user.                                                                                                        |
 | 4   | Forum Diskusi Makanan   | Pengguna dapat menggunakan ruang diskusi global untuk berdiskusi tentang makanan. Pengguna juga bisa mengedit, menghapus                                | Admin memiliki permission sama seperti user, ditambah admin dapat menghapus diskusi yang tidak sesuai dengan ketentuan yang berlaku.                |
-| 5   | Polling Makanan Terenak | Pengguna dapat memberikan suaranya untuk sebuah makanan.                                                                                                | Admin memiliki permission sama seperti user.                                                                                                        |
+| 5   | Polling Makanan Terenak | Pengguna dapat memberikan suaranya untuk sebuah makanan.                                                                                                | Admin memiliki permission sama seperti user, ditambah admin dapat menghapus polling yang tidak sesuai dengan ketentuan yang berlaku.                |
 
 ### 5. Alur pengintegrasian dengan **_web service_**
 
 1. **_Authentication_**
+
     1. Modul autentikasi akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan melakukan registrasi dan login di BE, kemudian BE akan memberikan token kepada pengguna yang akan digunakan untuk mengakses API.
     2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/authentication` untuk menambahkan autentikasi yang dibutuhkan.
 
 2. **_Daftar Makanan & Toko_**
+
     1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk mendapatkan data makanan dan toko.
-    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/toko_makanan` untuk menambahkan API yang dibutuhkan. 
-    3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya. 
+    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/toko_makanan` untuk menambahkan API yang dibutuhkan.
+    3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya.
 
 3. **_Rating & Review Toko_**
+
     1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk memberikan rating dan review ke toko.
-    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/rating_toko` untuk menambahkan API yang dibutuhkan. 
+    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/rating_toko` untuk menambahkan API yang dibutuhkan.
     3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya.
 
 4. **_Toko Favorit_**
+
     1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk menyimpan toko favorit.
-    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/dev_favorite_store` untuk menambahkan API yang dibutuhkan. 
+    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/dev_favorite_store` untuk menambahkan API yang dibutuhkan.
     3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya.
 
 5. **_Forum Diskusi Makanan_**
-    1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk berdiskusi tentang makanan.
-    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/discuss_forum` untuk menambahkan API yang dibutuhkan. 
-    3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya. 
 
-6. **_Polling Makanan Terenak_**
-    1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk memberikan suara pada makanan.
-    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/polling` untuk menambahkan API yang dibutuhkan. 
+    1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk berdiskusi tentang makanan.
+    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/discuss_forum` untuk menambahkan API yang dibutuhkan.
     3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya.
 
-7. **_Menerapkan _CORS_ pada BE Django_**
+6. **_Polling Makanan Terenak_**
+
+    1. Modul ini akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan mengakses API yang disediakan oleh BE untuk memberikan suara pada makanan.
+    2. Akan dilakukan modifikasi pada `views.py` dan `urls.py` di app `/polling` untuk menambahkan API yang dibutuhkan.
+    3. Modifikasi tersebut dapat berupa adaptasi ke JSON response, dan adaptasi beberapa HTTP method lainnya.
+
+7. **_Menerapkan \_CORS_ pada BE Django\_**
+
     1. Akan dilakukan modifikasi pada `settings.py` di BE Django untuk menambahkan _CORS_ agar BE dapat diakses oleh FE.
 
 8. **_Implementasi Flutter FE_**
