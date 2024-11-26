@@ -69,6 +69,20 @@ Ngandung adalah aplikasi berbasis web yang menyediakan informasi lengkap tentang
 
 ### 5. Alur pengintegrasian dengan **_web service_**
 
+#### Diagram Alur Pengintegrasian dengan Web Service:
+
+![Diagram Alur Pengintegrasian dengan Web Service](https://res.cloudinary.com/dr1tp0gwd/image/upload/v1732609347/jqdj6r9p4kkgv03zb4ca.png)
+
+#### Deskripsi Alur Pengintegrasian dengan Web Service:
+
+Dalam upaya mengintegrasikan aplikasi Django sebagai Backend (BE) & aplikasi Flutter sebagai Frontend (FE), perlu dilakukan modifikasi pada endpoint setiap BE untuk mengembalikan data dalam format pertukaran tertentu. Untuk mempermudah proses integrasi, kelompok kami memutuskan untuk menggunakan format pertukaran JSON. Alasan dibalik keputusan ini adalah sebab JSON lebih ringkas dan mudah dibaca. Selain itu, kelompok kami telah menggunakan JSON untuk Tugas Kelompok Tengah Semester, sehingga meminimalisir perubahan pada kode.
+
+Tahap selanjutnya adalah untuk membuat models pada aplikasi Flutter. Tahap ini dilakukan untuk memudahkan aplikasi Flutter dalam mengolah data agar tetap akurat dengan data type yang sudah ditentukan. Menggunakan package http Flutter, kita dapat mengirimkan HTTP requests kepada endpoint BE yang telah dimodifikasi.
+
+Alur program dimulai dari user yang membuat HTTP request kepada Internet. HTTP request kemudian diforward oleh internet ke BE dari aplikasi Flutter yaitu dalam kasus ini merupakan aplikasi Django. Aplikasi Django akan menyamakan URL request dengan fungsi dalam Django kemudian menjalankan fungsi tersebut. Jika fungsi pada views.py membutuhkan data dari database, views.py akan berinteraksi secara langsung dengan Models untuk mengambil data. Sebelum dikembalikan pada FE, data diconvert menjadi bentuk JSON menggunakan Serializers. Terakhir, data akan dikirimkan kembali kepada aplikasi Flutter melalui Internet untuk diolah dan kemudian ditunjukkan kepada user.
+
+#### Deskripsi Modul yang akan Diintegrasikan:
+
 1. **_Authentication_**
 
     1. Modul autentikasi akan menggunakan BE dari Ngandung dengan Framework Django. Pengguna akan melakukan registrasi dan login di BE, kemudian BE akan memberikan token kepada pengguna yang akan digunakan untuk mengakses API.
