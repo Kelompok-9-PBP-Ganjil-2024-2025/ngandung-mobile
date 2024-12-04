@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'landing/home_screen.dart'; // HomeScreen from landing/screens
-import 'rating/rating_screen.dart'; // Rating screen from rating/screens
-import 'poll/poll_screen.dart'; // Poll screen from poll/screens
-import 'favorite/store_screen.dart'; // Store (Toko Fav) from favorite/screens
-import 'forum/forum_screen.dart'; // Forum screen from forum/screens
+
 
 void main() {
   runApp(const MyApp());
@@ -37,10 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const RatingScreen(),
-    const PollScreen(),
-    const StoreScreen(),
-    const ForumScreen(),
+
   ];
 
   void _onItemTapped(int index) {
@@ -70,22 +64,6 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Rating',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.poll),
-            label: 'Polling',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.thumb_up),
-            label: 'Favorite',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'Comment',
           ),
         ],
       ),
