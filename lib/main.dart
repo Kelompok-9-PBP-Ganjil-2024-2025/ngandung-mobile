@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const RatingScreen(),
-
+    const PollScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -73,7 +73,11 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.star),
             label: 'Rating',
           ),
-
+          BottomNavigationBarItem(
+            icon: Icon(Icons.poll),
+            label: 'Polling',
+          ),
+          
         ],
       ),
     );
