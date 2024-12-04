@@ -5,8 +5,17 @@ class RatingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('RATING', style: TextStyle(fontSize: 24)),
+    return const Scaffold(
+      backgroundColor:  Color(0xFF111111), 
+      body:  Center(
+        child: Text(
+          'RATING',
+          style: TextStyle(
+            fontSize: 24,
+            color: Color(0xFFFF9900), 
+          ),
+        ),
+      ),
     );
   }
 }
