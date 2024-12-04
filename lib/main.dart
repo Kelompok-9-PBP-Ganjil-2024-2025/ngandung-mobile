@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const HomeScreen(),
     const RatingScreen(),
     const PollScreen(),
+    const StoreScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -77,7 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.poll),
             label: 'Polling',
           ),
-          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.thumb_up),
+            label: 'Favorite',
+          ),
         ],
       ),
     );
