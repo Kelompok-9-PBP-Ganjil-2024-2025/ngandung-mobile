@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -14,27 +12,89 @@ class MakananPage extends StatefulWidget {
 }
 
 class _MakananPageState extends State<MakananPage> {
-  Future<List<Makanan>> fetchMakanan() async {
-    final request = context.watch<CookieRequest>();
 
-    final response =
-        await request.get('https://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/');
+  List<Makanan> hardcodedMakananList = [
+    Makanan(
+      model: 'makanan',
+      pk: 1,
+      fields: Fields(
+        name: 'Nasi Goreng',
+        price: 25000,
+        rumahMakan: 1,
+      ),
+    ),
+    Makanan(
+      model: 'makanan',
+      pk: 2,
+      fields: Fields(
+        name: 'Sate Ayam',
+        price: 30000,
+        rumahMakan: 1,
+      ),
+    ),
+    Makanan(
+      model: 'makanan',
+      pk: 3,
+      fields: Fields(
+        name: 'Mie Goreng',
+        price: 20000,
+        rumahMakan: 1,
+      ),
+    ),
+    Makanan(
+      model: 'makanan',
+      pk: 4,
+      fields: Fields(
+        name: 'Bakso',
+        price: 15000,
+        rumahMakan: 1,
+      ),
+    ),
+    Makanan(
+      model: 'makanan',
+      pk: 5,
+      fields: Fields(
+        name: 'Gado-Gado',
+        price: 22000,
+        rumahMakan: 1,
+      ),
+    ),
+    Makanan(
+      model: 'makanan',
+      pk: 6,
+      fields: Fields(
+        name: 'Ayam Goreng',
+        price: 35000,
+        rumahMakan: 1,
+      ),
+    ),
+  ];
 
-    // Parse the JSON response using the makananFromJson function
-    List<Makanan> makananList = makananFromJson(json.encode(response));
-
-    return makananList;
+  Future<List<Makanan>> fetchMakanan(CookieRequest request) async {
+    // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+    final response = await request.get('http://127.0.0.1:8000/makanan-json/');
+    
+    var data = response;
+    
+    List<Makanan> listMakanan = [];
+    for (var d in data) {
+      if (d != null) {
+        listMakanan.add(Makanan.fromJson(d));
+      }
+    }
+    return listMakanan;
   }
 
   @override
   Widget build(BuildContext context) {
+    final req = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Makanan'),
         centerTitle: true,
       ),
       body: FutureBuilder<List<Makanan>>(
-        future: fetchMakanan(),
+        future: fetchMakanan(req),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
