@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ngandung_mobile/poll/screens/polls_screen.dart';
+import 'package:ngandung_mobile/authentication/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,16 +10,22 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const PollsScreen(),
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child: MaterialApp(
+          title: 'Ngandung Mobile',
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.orange,
+            ).copyWith(secondary: Colors.orange[400]),
+          ),
+          home: const LoginPage()),
     );
   }
 }
