@@ -13,65 +13,7 @@ class MakananPage extends StatefulWidget {
 
 class _MakananPageState extends State<MakananPage> {
 
-  List<Makanan> hardcodedMakananList = [
-    Makanan(
-      model: 'makanan',
-      pk: 1,
-      fields: Fields(
-        name: 'Nasi Goreng',
-        price: 25000,
-        rumahMakan: 1,
-      ),
-    ),
-    Makanan(
-      model: 'makanan',
-      pk: 2,
-      fields: Fields(
-        name: 'Sate Ayam',
-        price: 30000,
-        rumahMakan: 1,
-      ),
-    ),
-    Makanan(
-      model: 'makanan',
-      pk: 3,
-      fields: Fields(
-        name: 'Mie Goreng',
-        price: 20000,
-        rumahMakan: 1,
-      ),
-    ),
-    Makanan(
-      model: 'makanan',
-      pk: 4,
-      fields: Fields(
-        name: 'Bakso',
-        price: 15000,
-        rumahMakan: 1,
-      ),
-    ),
-    Makanan(
-      model: 'makanan',
-      pk: 5,
-      fields: Fields(
-        name: 'Gado-Gado',
-        price: 22000,
-        rumahMakan: 1,
-      ),
-    ),
-    Makanan(
-      model: 'makanan',
-      pk: 6,
-      fields: Fields(
-        name: 'Ayam Goreng',
-        price: 35000,
-        rumahMakan: 1,
-      ),
-    ),
-  ];
-
   Future<List<Makanan>> fetchMakanan(CookieRequest request) async {
-    // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
     final response = await request.get('http://127.0.0.1:8000/makanan-json/');
     
     var data = response;
