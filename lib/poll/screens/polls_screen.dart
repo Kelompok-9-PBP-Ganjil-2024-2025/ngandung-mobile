@@ -29,7 +29,8 @@ class _PollsScreenState extends State<PollsScreen> {
   Future<void> _fetchPolls() async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('/polling-makanan/home/');
+      final response =
+          await request.get('http://127.0.0.1:8000/polling-makanan/');
 
       setState(() {
         _myPolls = (response['my_polls'] as List)
@@ -40,9 +41,8 @@ class _PollsScreenState extends State<PollsScreen> {
             .map((pollData) => Poll.fromJson(pollData))
             .toList();
 
-        _votedPollIds = (response['votes'] as List)
-            .map((id) => id.toString())
-            .toList();
+        _votedPollIds =
+            (response['votes'] as List).map((id) => id.toString()).toList();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +54,8 @@ class _PollsScreenState extends State<PollsScreen> {
   Future<void> _fetchPollResults(Poll poll) async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('/polling-makanan/ajax_poll_results/${poll.id}/');
+      final response =
+          await request.get('/polling-makanan/ajax_poll_results/${poll.id}/');
 
       setState(() {
         _selectedPoll = Poll.fromJson(response);
@@ -130,8 +131,10 @@ class _PollsScreenState extends State<PollsScreen> {
                   Expanded(
                     child: ListView(
                       children: [
-                        ..._myPolls.map((poll) => _buildPollCard(poll, isMyPoll: true)),
-                        ..._otherPolls.map((poll) => _buildPollCard(poll, isMyPoll: false)),
+                        ..._myPolls.map(
+                            (poll) => _buildPollCard(poll, isMyPoll: true)),
+                        ..._otherPolls.map(
+                            (poll) => _buildPollCard(poll, isMyPoll: false)),
                       ],
                     ),
                   ),
@@ -182,8 +185,10 @@ class _PollsScreenState extends State<PollsScreen> {
                           series: <ChartSeries>[
                             BarSeries<Choice, String>(
                               dataSource: _selectedPoll!.choices,
-                              xValueMapper: (Choice choice, _) => choice.choiceText,
-                              yValueMapper: (Choice choice, _) => choice.voteCount,
+                              xValueMapper: (Choice choice, _) =>
+                                  choice.choiceText,
+                              yValueMapper: (Choice choice, _) =>
+                                  choice.voteCount,
                               color: const Color(0xFFFF9900),
                             )
                           ],
