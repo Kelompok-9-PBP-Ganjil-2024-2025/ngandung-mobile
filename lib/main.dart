@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ngandung_mobile/landing/home_screen.dart';
+import 'package:ngandung_mobile/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -18,15 +18,14 @@ class MyApp extends StatelessWidget {
         return request;
       },
       child: MaterialApp(
-        title: 'Ngandung',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSwatch(
-            primarySwatch: Colors.orange,
-          ).copyWith(secondary: Colors.orange[300]),
-        ),
-        home: const HomeScreen(),
-      ),
+          title: 'Ngandung Mobile',
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.orange,
+            ).copyWith(secondary: Colors.orange[400]),
+          ),
+          home: const LoginPage()),
     );
   }
 }
