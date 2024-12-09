@@ -1,13 +1,30 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: library_private_types_in_public_api
 
-class HomeScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/widgets/navbar.dart'; // Import the BottomNavBar
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor:  Color(0xFF111111), 
-      body:  Center(
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      // Add navigation or other logic here based on the selected index
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF111111),
+      body: const Center(
         child: Text(
           'Home Screen ARSHQ',
           style: TextStyle(
@@ -15,6 +32,10 @@ Widget build(BuildContext context) {
             color: Color(0xFFFF9900), 
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
