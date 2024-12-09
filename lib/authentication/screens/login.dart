@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart';
 import 'package:ngandung_mobile/authentication/screens/register.dart';
 
 void main() {
@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    HomePage()), //TODO: diganti ya nnti
+                                    const HomeScreen()), //TODO: diganti ya nnti
                           );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
