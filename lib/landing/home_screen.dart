@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/models/makanan.dart';
@@ -11,22 +9,21 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  List<Makanan> _allMakanan = []; // Store all makanan
-  List<Makanan> _filteredMakanan = []; // Store filtered makanan
+  List<Makanan> _allMakanan = [];
+  List<Makanan> _filteredMakanan = [];
   final TextEditingController _searchController = TextEditingController();
 
   Future<List<Makanan>> fetchMakanan(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/makanan-json/');
-    
-    var data = response;
-    
+
     List<Makanan> listMakanan = [];
-    for (var d in data) {
+    for (var d in response) {
       if (d != null) {
         listMakanan.add(Makanan.fromJson(d));
       }
@@ -36,17 +33,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _filterMakanan(String query) {
     setState(() {
-      _filteredMakanan = _allMakanan
-          .where((makanan) => 
-            makanan.fields.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      if (query.isEmpty) {
+        _filteredMakanan = _allMakanan;
+      } else {
+        _filteredMakanan = _allMakanan
+            .where((makanan) =>
+                makanan.fields.name
+                    .toLowerCase()
+                    .contains(query.toLowerCase()) ||
+                makanan.fields.price
+                    .toString()
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+            .toList();
+      }
     });
   }
 
   @override
   void initState() {
     super.initState();
-    // Add listener to search controller
     _searchController.addListener(() {
       _filterMakanan(_searchController.text);
     });
@@ -54,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed
     _searchController.dispose();
     super.dispose();
   }
@@ -62,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      // Add navigation logic here based on the selected index
     });
   }
 
@@ -70,117 +74,158 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final req = context.watch<CookieRequest>();
     return Scaffold(
-      body: Column(
-        children: [
-          // Header Container
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.orange[500]!, Colors.orange[300]!],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
+      appBar: PreferredSize(
+        preferredSize:
+            const Size.fromHeight(150), // Tinggi AppBar termasuk search bar
+        child: AppBar(
+          backgroundColor: const Color(0xFFFE9B12),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(25),
+              bottomRight: Radius.circular(25),
             ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          flexibleSpace: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                16, 5, 16, 8), // Atur padding sesuai kebutuhan
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Title
                 Text(
-                  'Bingung mau makan apa? (・・？)',
+                  'NGANDUNG', // Sesuaikan teks title
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        offset: const Offset(2, 2),
+                        blurRadius: 4,
+                        color: Colors.black.withOpacity(0.3),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Temukan Makanan Favoritmu',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
+                const SizedBox(height: 12), // Jarak antara title dan search bar
+                // Search Bar
+                TextField(
+                  controller: _searchController,
+                  onChanged: _filterMakanan,
+                  decoration: InputDecoration(
+                    hintText: "Cari makanan favoritmu...",
+                    filled: true,
+                    fillColor: Colors.white,
+                    prefixIcon:
+                        const Icon(Icons.search, color: Color(0xFFFE9B12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Colors.transparent, width: 0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Colors.transparent, width: 0),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          
-          // Search Bar
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(8.0),
+        children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari makanan...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              color: const Color(0xFFFFF4E5),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Selamat Datang di Ngandung!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFE9B12),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Lagi di Bandung trs bingung mau makan apa? (・・？), cari aja disini!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          
-          // Expanded to fill remaining space with GridView
-          Expanded(
-            child: FutureBuilder<List<Makanan>>(
-              future: fetchMakanan(req),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          FutureBuilder<List<Makanan>>(
+            future: fetchMakanan(req),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-
-                // Store all makanan when data is first loaded
-                if (_allMakanan.isEmpty && snapshot.hasData) {
-                  _allMakanan = snapshot.data!;
-                  _filteredMakanan = _allMakanan;
-                }
-
-                if (_filteredMakanan.isEmpty) {
-                  return const Center(
-                    child: Text('Tidak ada makanan ditemukan'),
-                  );
-                }
-
-                // Display makanan in a grid view
-                return GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: _filteredMakanan.length,
-                  itemBuilder: (context, index) {
-                    Makanan makanan = _filteredMakanan[index];
-                    return MakananCard(
-                      imageurl:
-                          'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg', // Add actual image URL if available
-                      name: makanan.fields.name,
-                      price: makanan.fields.price,
-                    );
-                  },
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
                 );
-              },
-            ),
+              }
+
+              // Store all makanan when data is first loaded
+              if (_allMakanan.isEmpty && snapshot.hasData) {
+                _allMakanan = snapshot.data!;
+                _filteredMakanan = _allMakanan;
+              }
+
+              if (_filteredMakanan.isEmpty) {
+                return const Center(
+                  child: Text('Tidak ada makanan ditemukan'),
+                );
+              }
+
+              // Display makanan in a grid view
+              return GridView.builder(
+                physics:
+                    const NeverScrollableScrollPhysics(), // Disable GridView scrolling
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: _filteredMakanan.length,
+                itemBuilder: (context, index) {
+                  Makanan makanan = _filteredMakanan[index];
+                  return MakananCard(
+                    imageurl:
+                        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg', // Add actual image URL if available
+                    name: makanan.fields.name,
+                    price: makanan.fields.price,
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
-      // Move the bottomNavigationBar to the Scaffold level
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
