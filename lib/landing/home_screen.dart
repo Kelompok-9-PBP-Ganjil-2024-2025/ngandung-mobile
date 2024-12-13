@@ -14,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
   List<Makanan> _allMakanan = [];
   List<Makanan> _filteredMakanan = [];
   final TextEditingController _searchController = TextEditingController();
@@ -64,12 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final req = context.watch<CookieRequest>();
@@ -87,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           flexibleSpace: Padding(
             padding: const EdgeInsets.fromLTRB(
-                16, 5, 16, 8), // Atur padding sesuai kebutuhan
+                16, 5, 16, 8), 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -108,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12), // Jarak antara title dan search bar
+                const SizedBox(height: 12),
+                
                 // Search Bar
                 TextField(
                   controller: _searchController,
@@ -226,10 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      bottomNavigationBar: const BottomNavBar(),
     );
   }
 }

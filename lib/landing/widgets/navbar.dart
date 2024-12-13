@@ -1,43 +1,64 @@
 
 // lib/widget/navbar.dart
 import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
-class BottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
+class BottomNavBar extends StatefulWidget {
+  const BottomNavBar({super.key});
 
-  const BottomNavBar({super.key, required this.selectedIndex, required this.onItemTapped});
+  @override
+  State<BottomNavBar> createState() => _BottomNavBarState();
+}
+
+class _BottomNavBarState extends State<BottomNavBar> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      //TODO:  Nanti add navigation logic ke sini
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF111111),
-      currentIndex: selectedIndex,
-      onTap: onItemTapped,
-      selectedItemColor: const Color(0xFFFEC123),
-      unselectedItemColor: const Color(0xFFACB0B8),
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+    return Container(
+      color: Colors.black,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+        child: GNav(
+          selectedIndex: _selectedIndex,
+          onTabChange: _onItemTapped,
+          backgroundColor: Colors.black,
+          color: Colors.white,
+          activeColor: Colors.white,
+          tabBackgroundColor: Colors.orange.shade300,
+          gap: 8,
+          padding: const EdgeInsets.all(15),
+          tabs: const [
+            GButton(
+              icon: Icons.home,
+              text: 'Home',
+            ),
+            GButton(
+              icon: Icons.rate_review_rounded,
+              text: 'Rating',
+            ),
+            GButton(
+              icon: Icons.poll_rounded,
+              text: 'Poll',
+            ),
+            GButton(
+              icon: Icons.favorite_outlined,
+              text: 'Favourite',
+            ),
+            GButton(
+              icon: Icons.forum_rounded,
+              text: 'Forum',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          label: 'Rating',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.poll),
-          label: 'Polling',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.thumb_up),
-          label: 'Favorite',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.message),
-          label: 'Comment',
-        ),
-      ],
+      ),
     );
   }
 }
