@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ngandung_mobile/authentication/screens/login.dart';
+// import 'package:ngandung_mobile/authentication/screens/login.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.orange,
             ).copyWith(secondary: Colors.orange[400]),
           ),
-          home: const LoginPage()),
+          home: const HomeScreen()),
     );
   }
 }
