@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -79,7 +80,7 @@ class DetailMakananPage extends StatelessWidget {
             final data = snapshot.data!;
             return ListView(
               padding: const EdgeInsets.all(16.0),
-              children: [
+              children: <Widget>[
                 // Gambar
                 Center(
                   child: ClipRRect(
@@ -121,7 +122,8 @@ class DetailMakananPage extends StatelessWidget {
                   children: [
                     InfoCard(
                       icon: Icons.restaurant_rounded,
-                      content: getMakananType(data['rumah_makan']['makanan_berat_ringan'] ?? ''),
+                      content: getMakananType(
+                          data['rumah_makan']['makanan_berat_ringan'] ?? ''),
                     ),
                     InfoCard(
                       icon: Icons.paid_outlined,
@@ -135,15 +137,51 @@ class DetailMakananPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20.0),
 
-                // Memberikan jarak vertikal 16 unit.
-                const SizedBox(height: 16.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 10.0), // Padding tambahan
+                  child: Text(
+                    "List Makanan",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 20, // Ukuran teks judul
+                      fontWeight: FontWeight.bold, // Ketebalan teks
+                      color: Colors.black, // Warna teks
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 15.0),
+                if (data['list_makanan'] != null)
+                  ListView.builder(
+                    shrinkWrap: true, // Penting agar ListView mengikuti konten
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Mencegah scroll tersendiri karena sudah dalam ListView parent
+                    itemCount: (data['list_makanan'] as List<dynamic>).length,
+                    itemBuilder: (context, index) {
+                      final makanan =
+                          (data['list_makanan'] as List<dynamic>)[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 8.0), // Spacing antar card
+                        child: FoodCard(
+                          nama: makanan['name'] ?? 'Tidak tersedia',
+                          harga: makanan['price'] ?? 0,
+                        ),
+                      );
+                    },
+                  )
+                else
+                  const Text("Belum ada makanan yang terdaftar"),
               ],
             );
           }
           return const Center(child: Text("Data tidak tersedia"));
         },
       ),
+      bottomNavigationBar: const BottomNavBar(),
     );
   }
 }
@@ -160,7 +198,7 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       // Membuat kotak kartu dengan bayangan dibawahnya.
-      elevation: 2.0,
+      elevation: 4.0,
       child: Container(
         // Mengatur ukuran dan jarak di dalam kartu.
         width: MediaQuery.of(context).size.width /
@@ -182,6 +220,57 @@ class InfoCard extends StatelessWidget {
                 fontSize: 14, // Atur ukuran teks di sini
                 fontWeight: FontWeight.w500, // Atur ketebalan teks
                 color: Colors.black, // Atur warna teks
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FoodCard extends StatelessWidget {
+  final String nama;
+  final int harga;
+
+  const FoodCard({
+    super.key,
+    required this.nama,
+    required this.harga,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        width: double.infinity, // Menggunakan lebar penuh
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          // Mengubah Column menjadi Row untuk layout horizontal
+          mainAxisAlignment: MainAxisAlignment
+              .spaceBetween, // Memberi spasi antara nama dan harga
+          children: [
+            Expanded(
+              // Agar nama bisa wrap jika terlalu panjang
+              child: Text(
+                nama,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16.0), // Spacing antara nama dan harga
+            Text(
+              'Rp $harga',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
               ),
             ),
           ],
