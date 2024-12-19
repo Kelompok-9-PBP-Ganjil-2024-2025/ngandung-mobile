@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: _pages[_selectedIndex],
       ),
-      bottomNavigationBar: BottomNavBar( // Use the BottomNavBar widget
+      bottomNavigationBar: BottomNavBar( // Use the BottomNavBar widgets
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
