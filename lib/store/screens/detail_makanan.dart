@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailMakananPage extends StatelessWidget {
   final int id;
@@ -81,12 +82,11 @@ class DetailMakananPage extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: <Widget>[
-                // Gambar
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
-                      "https://cdn-icons-png.flaticon.com/256/695/695992.png", // Ganti dengan URL dari data jika ada
+                      "https://cdn-icons-png.flaticon.com/256/695/695992.png",
                       height: 120, // Atur tinggi gambar
                       width: 120, // Atur lebar gambar
                       fit: BoxFit.cover, // Sesuaikan gambar
@@ -103,7 +103,6 @@ class DetailMakananPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Nama Rumah Makan
                 Center(
                   child: Text(
                     data['rumah_makan']
@@ -138,7 +137,39 @@ class DetailMakananPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20.0),
-
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFE9B12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: const Icon(Icons.map, color: Colors.white),
+                  label: const Text(
+                    'Buka di Maps',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () async {
+                    try {
+                      final url = Uri.parse(data['gmap_url']);
+                      await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tidak dapat membuka Google Maps'),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
                 const Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: 10.0), // Padding tambahan
@@ -152,7 +183,6 @@ class DetailMakananPage extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 15.0),
                 if (data['list_makanan'] != null)
                   ListView.builder(
