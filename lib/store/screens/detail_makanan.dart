@@ -137,6 +137,7 @@ class DetailMakananPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20.0),
+                
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFE9B12),
@@ -152,13 +153,26 @@ class DetailMakananPage extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () async {
-                    try {
-                      final url = Uri.parse(data['gmap_url']);
+                    final String? urlString = data['gmap_url'];
+                    if (urlString == null || urlString.isEmpty) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('URL Google Maps tidak tersedia'),
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    final Uri url = Uri.parse(urlString);
+
+                    if (await canLaunchUrl(url)) {
                       await launchUrl(
                         url,
                         mode: LaunchMode.externalApplication,
                       );
-                    } catch (e) {
+                    } else {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
