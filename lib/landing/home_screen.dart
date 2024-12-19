@@ -193,10 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
-              // Display makanan in a grid view
+              // Display makanan dalam grid view
               return GridView.builder(
                 physics:
-                    const NeverScrollableScrollPhysics(), // Disable GridView scrolling
+                    const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -210,9 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Makanan makanan = _filteredMakanan[index];
                   return MakananCard(
                     imageurl:
-                        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg', // Add actual image URL if available
+                        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg', 
                     name: makanan.fields.name,
                     price: makanan.fields.price,
+                    id: makanan.pk,
                   );
                 },
               );

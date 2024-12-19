@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/store/screens/detail_makanan.dart';
 
 class MakananCard extends StatelessWidget {
   final String imageurl;
   final String name;
   final int price;
+  final int id;
 
   const MakananCard({
     super.key,
     required this.imageurl,
     required this.name,
     required this.price,
+    required this.id,
   });
 
   @override
@@ -76,8 +79,6 @@ class MakananCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Tambahkan ruang kosong untuk mendorong tombol ke bawah
               const Spacer(),
             ],
           ),
@@ -89,24 +90,23 @@ class MakananCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Aksi tombol
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(
+                      builder: (context) => DetailMakananPage(id: id),
+                    )
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   // Warna latar belakang button
-                  backgroundColor: Colors.orange, // Ubah warna sesuai keinginan
-
+                  backgroundColor: Colors.orange,
                   // Warna teks
                   foregroundColor: Colors.white,
-
-                  // Bentuk button
                   shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(10), // Atur radius sudut
                   ),
-
-                  // Padding internal button
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-
-                  // Elevasi (bayangan)
                   elevation: 3,
                 ),
                 child: const Text(
