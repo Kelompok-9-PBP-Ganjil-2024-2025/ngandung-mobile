@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/models/makanan.dart';
+import 'package:ngandung_mobile/store/screens/makanan_form.dart';
 import 'package:ngandung_mobile/store/widgets/makanan_card.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -176,12 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: 8.0), 
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => AddMakananFormPage(),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MakananFormPage(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange, // Warna tombol
