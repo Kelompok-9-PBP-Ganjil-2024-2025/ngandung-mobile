@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/models/makanan.dart';
 import 'package:ngandung_mobile/store/screens/makanan_form.dart';
+import 'package:ngandung_mobile/store/screens/rumahmakan_form.dart';
 import 'package:ngandung_mobile/store/widgets/makanan_card.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -203,12 +204,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.only(right: 16.0), // Jarak antar tombol
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => AddRumahMakanFormPage(),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RumahMakanFormPage(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green, // Warna tombol

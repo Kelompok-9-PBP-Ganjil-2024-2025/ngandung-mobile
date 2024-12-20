@@ -38,8 +38,7 @@ class _MakananFormPageState extends State<MakananFormPage> {
 
   Future<List<dynamic>> fetchListRumahMakan(CookieRequest req) async {
     try {
-      final response =
-          await req.get('http://127.0.0.1:8000/list-rumahmakan');
+      final response = await req.get('http://127.0.0.1:8000/list-rumahmakan/');
       return response as List<dynamic>;
     } catch (e) {
       throw Exception("Error fetching rumah makan: $e");
@@ -138,7 +137,10 @@ class _MakananFormPageState extends State<MakananFormPage> {
                       vertical: 12,
                     ),
                   ),
-                  child: const Text("Tambahkan"),
+                  child: const Text(
+                    "Tambahkan",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
             ],
