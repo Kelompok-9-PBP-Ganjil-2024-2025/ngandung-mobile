@@ -79,8 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           flexibleSpace: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                16, 5, 16, 8), 
+            padding: const EdgeInsets.fromLTRB(16, 5, 16, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -102,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Search Bar
                 TextField(
                   controller: _searchController,
@@ -168,6 +167,65 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end, // Tombol di kiri
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 8.0), 
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => AddMakananFormPage(),
+                    //   ),
+                    // );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange, // Warna tombol
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tambah Makanan',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(right: 16.0), // Jarak antar tombol
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => AddRumahMakanFormPage(),
+                    //   ),
+                    // );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Warna tombol
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tambah Rumah Makan',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           FutureBuilder<List<Makanan>>(
             future: fetchMakanan(req),
             builder: (context, snapshot) {
@@ -195,8 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Display makanan dalam grid view
               return GridView.builder(
-                physics:
-                    const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -210,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Makanan makanan = _filteredMakanan[index];
                   return MakananCard(
                     imageurl:
-                        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg', 
+                        'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg',
                     name: makanan.fields.name,
                     price: makanan.fields.price,
                     id: makanan.pk,
