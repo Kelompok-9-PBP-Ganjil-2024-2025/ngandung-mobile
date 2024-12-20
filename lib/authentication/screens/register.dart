@@ -110,13 +110,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: () async {
+                                        onPressed: () async {
                       String username = _usernameController.text;
                       String password1 = _passwordController.text;
                       String password2 = _confirmPasswordController.text;
 
                       // Cek kredensial
-                      // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
                       // Untuk menyambungkan Android emulator dengan Django pada localhost,
                       // gunakan URL http://10.0.2.2/
                       final response = await request.postJson(
@@ -126,9 +125,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             "password1": password1,
                             "password2": password2,
                           }));
-
-                      if (response['status'] == 'success') {
-                        if (context.mounted) {
+                      if (context.mounted) {
+                        if (response['status'] == 'success') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Successfully registered!'),
@@ -139,20 +137,18 @@ class _RegisterPageState extends State<RegisterPage> {
                             MaterialPageRoute(
                                 builder: (context) => const LoginPage()),
                           );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to register!'),
+                            ),
+                          );
                         }
-                      } else {
-                        String errorMessage =
-                            response['message'] ?? 'Failed to register!';
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(errorMessage),
-                          ),
-                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50),
+                      minimumSize: const Size(double.infinity, 50),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
