@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Makanan> _allMakanan = [];
   List<Makanan> _filteredMakanan = [];
   final TextEditingController _searchController = TextEditingController();
+  bool _isSuperuser = false;
 
   Future<List<Makanan>> fetchMakanan(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/makanan-json/');
@@ -77,6 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    final req = context.read<CookieRequest>();
+    setState(() {
+      _isSuperuser = req.jsonData['is_superuser'] ?? false;
+    });
     _searchController.addListener(() {
       _filterMakanan(_searchController.text);
     });
@@ -192,62 +197,63 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end, // Tombol di kiri
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MakananFormPage(),
+          if (_isSuperuser)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end, // Tombol di kiri
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, right: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MakananFormPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange, // Warna tombol
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange, // Warna tombol
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Tambah Makanan',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  child: const Text(
-                    'Tambah Makanan',
-                    style: TextStyle(color: Colors.white),
-                  ),
                 ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(right: 16.0), // Jarak antar tombol
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RumahMakanFormPage(),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(right: 16.0), // Jarak antar tombol
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RumahMakanFormPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, // Warna tombol
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Warna tombol
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Tambah Rumah Makan',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  child: const Text(
-                    'Tambah Rumah Makan',
-                    style: TextStyle(color: Colors.white),
-                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 20),
           FutureBuilder<List<Makanan>>(
             future: fetchMakanan(req),
@@ -295,7 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     price: makanan.fields.price,
                     id: makanan.pk,
                     onDelete: () =>
-                        _showDeleteConfirmation(context, makanan.pk),
+                        _showDeleteConfirmation(context, makanan.pk), 
+                    admin: _isSuperuser,
                   );
                 },
               );

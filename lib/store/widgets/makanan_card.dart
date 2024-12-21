@@ -10,6 +10,7 @@ class MakananCard extends StatelessWidget {
   final int price;
   final int id;
   final Function() onDelete;
+  final bool admin;
 
   const MakananCard({
     super.key,
@@ -17,7 +18,8 @@ class MakananCard extends StatelessWidget {
     required this.name,
     required this.price,
     required this.id, 
-    required this.onDelete,
+    required this.onDelete, 
+    required this.admin,
   });
 
   @override
@@ -124,35 +126,36 @@ class MakananCard extends StatelessWidget {
                 ),
               )),
           //*===========================================Button Edit & Delete===========================================
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                //* Tombol Edit
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditMakananPage(id: id),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit),
-                  color: Colors.blue,
-                ),
+          if (admin)
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  //* Tombol Edit
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditMakananPage(id: id),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit),
+                    color: Colors.blue,
+                  ),
 
-                //* Tombol Delete
-                IconButton(
-                  onPressed: onDelete,
-                  icon: const Icon(Icons.delete),
-                  color: Colors.red,
-                ),
-              ],
+                  //* Tombol Delete
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete),
+                    color: Colors.red,
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

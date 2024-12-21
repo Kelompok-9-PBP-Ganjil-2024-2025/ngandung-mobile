@@ -8,10 +8,27 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class DetailRumahMakanPage extends StatelessWidget {
+class DetailRumahMakanPage extends StatefulWidget {
   final int id;
 
   const DetailRumahMakanPage({super.key, required this.id});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _DetailRumahMakanState createState() => _DetailRumahMakanState();
+}
+
+class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
+  bool _isSuperuser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final req = context.read<CookieRequest>();
+    setState(() {
+      _isSuperuser = req.jsonData['is_superuser'] ?? false;
+    });
+  }
 
   Future<Map<String, dynamic>> fetchDetail(CookieRequest req, int id) async {
     final response = await req.get('http://127.0.0.1:8000/detail-json/$id/');
@@ -96,7 +113,7 @@ class DetailRumahMakanPage extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchDetail(req, id), // Panggil fetchDetail
+        future: fetchDetail(req, widget.id), // Panggil fetchDetail
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -142,55 +159,57 @@ class DetailRumahMakanPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //*===========================================Edit Button===========================================
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditRumahMakanPage(
-                                id: data['rumah_makan']['id']),
+                if (_isSuperuser)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //*===========================================Edit Button===========================================
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditRumahMakanPage(
+                                  id: data['rumah_makan']['id']),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Edit Rumah Makan',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        'Edit Rumah Makan',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    //*===========================================Delete Button===========================================
-                    ElevatedButton(
-                      onPressed: () {
-                        _showDeleteConfirmation(
-                            context, data['rumah_makan']['id']);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 16),
+                      //*===========================================Delete Button===========================================
+                      ElevatedButton(
+                        onPressed: () {
+                          _showDeleteConfirmation(
+                              context, data['rumah_makan']['id']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Hapus Rumah Makan',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        'Hapus Rumah Makan',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 20.0),
                 //*===========================================Detail Rumah Makan===========================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -257,6 +276,31 @@ class DetailRumahMakanPage extends StatelessWidget {
                         );
                       }
                     }
+                  },
+                ),
+                const SizedBox(height: 10),
+                //*===========================================Favorite Button===========================================
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: const Icon(Icons.favorite, color: Colors.white),
+                  label: const Text(
+                    'Tambah ke Favorit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Fitur favorit belum tersedia'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
