@@ -71,9 +71,11 @@ class _RatingPageState extends State<RatingPage> {
         future: Future.wait([_futureRumahMakan, _futureRatings]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show a loading indicator while fetching data
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
+            // Display error message if any error occurs
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           final results = snapshot.data as List;
@@ -86,32 +88,52 @@ class _RatingPageState extends State<RatingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1) Information about the place
+                  // Container with back button and restaurant title
                   Container(
                     padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: Colors.orange[400],
-                      borderRadius: BorderRadius.circular(
-                          10.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                     width: double.infinity,
-                    child: Text(
-                      rumahMakan.fields.namaRumahMakan,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      children: [
+                        // Back Button
+                        IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () {
+                            // Navigate back when the back button is pressed
+                            Navigator.pop(context);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        // Restaurant Title
+                        Expanded(
+                          child: Text(
+                            rumahMakan.fields.namaRumahMakan,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
+                  // Restaurant Address
                   Text(
                     rumahMakan.fields.alamat,
                     style: const TextStyle(fontSize: 16),
                   ),
+                  // Established Year
                   Text(
                     'Berdiri tahun ${rumahMakan.fields.tahun}',
                     style: const TextStyle(fontSize: 16),
                   ),
+                  // Cuisine Origin
                   Text(
                     'Menu makanan asal ${rumahMakan.fields.masakanDariMana == 'semua' ? 'dalam & luar negeri' : rumahMakan.fields.masakanDariMana}',
                     style: const TextStyle(fontSize: 16),
@@ -127,13 +149,14 @@ class _RatingPageState extends State<RatingPage> {
                     ),
                   ),
 
-                  // 2) Section for average rating + all ratings
+                  // Section for average rating + all ratings
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'Average Rating: ${rumahMakan.fields.averageRating}',
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 20),
                       ),
                       const SizedBox(width: 4),
                       const Icon(
