@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/rumahmakan.dart';
+import '../models/rumahmakan_model.dart';
 import '../screens/rating_view.dart';
 
 class RumahMakanCard extends StatelessWidget {
