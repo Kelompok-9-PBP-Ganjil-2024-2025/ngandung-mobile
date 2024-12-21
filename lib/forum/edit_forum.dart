@@ -33,7 +33,7 @@ class _EditForumPageState extends State<EditForumPage> {
 
       try {
         final response = await request.postJson(
-          "http://10.0.2.2:8000/api/edit-forum-flutter/${widget.forum.pk}/", // Ganti dengan IP yang sesuai
+          "http://127.0.0.1:8000/edit-forum-flutter/${widget.forum.pk}/",
           jsonEncode(<String, String>{
             'title': _title,
             'content': _content,
@@ -41,28 +41,31 @@ class _EditForumPageState extends State<EditForumPage> {
         );
 
         if (response['status'] == 'success') {
+          // Kembalikan data yang diupdate ke DiscussionPage, termasuk 'pk'
+          Navigator.pop(context, {
+            'pk': widget.forum.pk,
+            'title': _title,
+            'content': _content,
+          });
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(response['message'] ?? "Gagal mengupdate forum."),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Forum berhasil diupdate!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context, true); // Kembalikan true untuk menyegarkan ForumScreen
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response['message'] ?? "Gagal mengupdate forum."),
+              content: Text("Terjadi kesalahan. Silakan coba lagi."),
               backgroundColor: Colors.red,
             ),
           );
         }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Terjadi kesalahan. Silakan coba lagi."),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     }
   }

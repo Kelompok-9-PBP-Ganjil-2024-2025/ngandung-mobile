@@ -1,8 +1,6 @@
 // forum_screen.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'models/forum_model.dart';
 import 'discussion_page.dart';
 import 'add_forum.dart';
@@ -15,37 +13,56 @@ class ForumScreen extends StatefulWidget {
 }
 
 class _ForumScreenState extends State<ForumScreen> {
-  late Future<List<Forum>> _forumsFuture;
+  List<Forum> _forums = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _forumsFuture = fetchForums();
+    fetchForums();
   }
 
-  // Function to fetch data from API
-  Future<List<Forum>> fetchForums() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/forum'));
+  // Fungsi untuk mengambil data dari API
+  Future<void> fetchForums() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/forum'));
 
-    if (response.statusCode == 200) {
-      // If request is successful, parse JSON data into Forum objects
-      return forumFromJson(response.body);
-    } else {
-      throw Exception('Failed to load forums');
+      if (response.statusCode == 200) {
+        // Jika permintaan berhasil, parse JSON menjadi objek Forum
+        List<Forum> forums = forumFromJson(response.body);
+        setState(() {
+          _forums = forums;
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Gagal memuat forum.';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: $e';
+        _isLoading = false;
+      });
     }
   }
 
-  // Function to refresh forums
-  void _refreshForums() {
+  // Fungsi untuk menyegarkan daftar forum
+  Future<void> _refreshForums() async {
     setState(() {
-      _forumsFuture = fetchForums();
+      _isLoading = true;
+      _errorMessage = null;
     });
+    await fetchForums();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light background for contrast
+      backgroundColor: const Color(0xFFF5F5F5), // Latar belakang terang untuk kontras
       appBar: AppBar(
         title: const Text(
           'Forum Page',
@@ -56,97 +73,97 @@ class _ForumScreenState extends State<ForumScreen> {
         backgroundColor: const Color(0xFF111111),
         elevation: 0,
       ),
-      body: FutureBuilder<List<Forum>>(
-        future: _forumsFuture, // Call the fetchForums function
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show loading spinner while data is loading
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // Show error message if there's an issue fetching data
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            // If data is successfully fetched, display the list of forums
-            List<Forum> forums = snapshot.data!;
-            return ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: forums.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFFF9900), width: 2),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator()) // Spinner saat memuat data
+          : _errorMessage != null
+              ? Center(child: Text(_errorMessage!)) // Menampilkan pesan error
+              : ListView.builder(
+                  padding: const EdgeInsets.all(10),
+                  itemCount: _forums.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFFF9900), width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                        color: Colors.white,
                       ),
-                    ],
-                    color: Colors.white,
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    title: Text(
-                      forums[index].fields.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF111111),
-                      ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        forums[index].fields.content,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF666666),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16, color: Color(0xFF999999)),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatDate(forums[index].fields.lastUpdated),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        title: Text(
+                          _forums[index].fields.title,
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF999999),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF111111),
                           ),
                         ),
-                      ],
-                    ),
-                    onTap: () {
-                      // Navigate to the discussion page when a forum is tapped
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DiscussionPage(forum: forums[index]),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _forums[index].fields.content,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF666666),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ).then((value) {
-                        if (value == true) {
-                          // Refresh the forums list if a forum was deleted
-                          _refreshForums();
-                        }
-                      });
-                    },
-                  ),
-                );
-              },
-            );
-          } else {
-            // If no data is available
-            return const Center(child: Text('No data available.'));
-          }
-        },
-      ),
-      // Adding FloatingActionButton for navigation to AddForumFormPage
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_today, size: 16, color: Color(0xFF999999)),
+                            const SizedBox(height: 4),
+                            Text(
+                              _formatDate(_forums[index].fields.lastUpdated),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF999999),
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          // Navigasi ke halaman DiscussionPage saat forum ditekan
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DiscussionPage(forum: _forums[index]),
+                            ),
+                          ).then((value) {
+                            if (value != null) {
+                              if (value is Map<String, String>) {
+                                // Jika forum di-edit, update data lokal
+                                setState(() {
+                                  _forums[index].fields.title = value['title'] ?? _forums[index].fields.title;
+                                  _forums[index].fields.content = value['content'] ?? _forums[index].fields.content;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Forum berhasil diupdate!"),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } else if (value == true) {
+                                // Jika forum dihapus, refresh daftar forum
+                                _refreshForums();
+                              }
+                            }
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+      // Menambahkan FloatingActionButton untuk navigasi ke AddForumFormPage
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -154,7 +171,7 @@ class _ForumScreenState extends State<ForumScreen> {
             MaterialPageRoute(builder: (context) => const AddForumForm()),
           ).then((value) {
             if (value == true) {
-              // Refresh the forums list if a new forum was added
+              // Refresh daftar forum jika forum baru ditambahkan
               _refreshForums();
             }
           });
@@ -164,7 +181,7 @@ class _ForumScreenState extends State<ForumScreen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFFFF9900), // Matching the border color
+        backgroundColor: const Color(0xFFFF9900), // Menyesuaikan warna border
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -173,7 +190,7 @@ class _ForumScreenState extends State<ForumScreen> {
     );
   }
 
-  // Helper function to format the date
+  // Fungsi pembantu untuk memformat tanggal
   String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }

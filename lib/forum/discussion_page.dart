@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'models/forum_model.dart';
 import 'models/comment_model.dart';
+import 'edit_forum.dart'; // Pastikan untuk mengimpor halaman edit_forum.dart
 import 'package:http/http.dart' as http;
 
 class DiscussionPage extends StatefulWidget {
@@ -17,18 +18,21 @@ class DiscussionPage extends StatefulWidget {
 
 class _DiscussionPageState extends State<DiscussionPage> {
   late Future<List<Comment>> _commentsFuture;
+  late Forum currentForum;
 
   @override
   void initState() {
     super.initState();
+    // Initialize currentForum dengan data awal dari widget.forum
+    currentForum = widget.forum;
     // Memanggil fungsi fetchComments berdasarkan pk dari Forum (Discussion)
-    _commentsFuture = fetchComments(widget.forum.pk);
+    _commentsFuture = fetchComments(currentForum.pk);
   }
 
   // Fungsi untuk GET comments dari endpoint Django
   Future<List<Comment>> fetchComments(String forumId) async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'),
+      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'), // Gunakan http://127
     );
     if (response.statusCode == 200) {
       return commentFromJson(response.body);
@@ -41,7 +45,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Future<void> forumDelete(CookieRequest request) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/delete-forum-flutter/${widget.forum.pk}/',
+        'http://127.0.0.1:8000/delete-forum-flutter/${currentForum.pk}/', // Gunakan http://127
         {},
       );
 
@@ -55,8 +59,8 @@ class _DiscussionPageState extends State<DiscussionPage> {
         Navigator.pop(context, true); // Kembalikan true untuk menyegarkan ForumScreen
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to delete forum'),
+          SnackBar(
+            content: Text(response['message'] ?? 'Failed to delete forum'),
             backgroundColor: Colors.red,
           ),
         );
@@ -82,13 +86,37 @@ class _DiscussionPageState extends State<DiscussionPage> {
           color: Color(0xFFFF9900), // Warna tombol back
         ),
         title: Text(
-          widget.forum.fields.title,
+          currentForum.fields.title,
           style: const TextStyle(
             color: Color(0xFFFF9900), // Warna teks
           ),
         ),
         backgroundColor: const Color(0xFF111111),
         actions: [
+          // Tombol Edit
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.blue),
+            onPressed: () {
+              // Navigasi ke halaman EditForumPage dengan mengirimkan data forum
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditForumPage(forum: currentForum),
+                ),
+              ).then((value) {
+                if (value != null && value is Map<String, String>) {
+                  setState(() {
+                    // Update currentForum dengan data yang diubah
+                    currentForum.fields.title = value['title'] ?? currentForum.fields.title;
+                    currentForum.fields.content = value['content'] ?? currentForum.fields.content;
+                  });
+                  // Kembalikan data yang diupdate ke ForumScreen
+                  Navigator.pop(context, value);
+                }
+              });
+            },
+          ),
+          // Tombol Delete
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () async {
@@ -125,7 +153,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
           children: [
             // Tampilkan konten forum di bagian atas
             Text(
-              widget.forum.fields.content,
+              currentForum.fields.content,
               style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 16),
