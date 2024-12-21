@@ -56,25 +56,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> _deleteMakanan(BuildContext context, int id) async {
     final request = context.read<CookieRequest>();
     try {
-        final response = await request.post(
-            'http://127.0.0.1:8000/delete-makanan-flutter/$id/',
-            {
-                'id': id.toString(),
-            }
-        );
-        
-        if (response['success']) {
-            setState(() {
-                _allMakanan.removeWhere((makanan) => makanan.pk == id);
-                _filteredMakanan.removeWhere((makanan) => makanan.pk == id);
-            });
-            return true;
-        }
+      final response = await request
+          .post('http://127.0.0.1:8000/delete-makanan-flutter/$id/', {
+        'id': id.toString(),
+      });
+
+      if (response['success']) {
+        setState(() {
+          _allMakanan.removeWhere((makanan) => makanan.pk == id);
+          _filteredMakanan.removeWhere((makanan) => makanan.pk == id);
+        });
+        return true;
+      }
     } catch (e) {
-        debugPrint('Error deleting makanan: $e');
+      debugPrint('Error deleting makanan: $e');
     }
     return false;
-}
+  }
 
   @override
   void initState() {

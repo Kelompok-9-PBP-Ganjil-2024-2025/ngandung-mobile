@@ -98,7 +98,7 @@ class MakananCard extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailMakananPage(id: id),
+                        builder: (context) => DetailRumahMakanPage(id: id),
                       ));
                 },
                 style: ElevatedButton.styleFrom(

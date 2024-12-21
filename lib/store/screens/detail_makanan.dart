@@ -1,17 +1,17 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/screens/edit_rumahmakan.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 
-class DetailMakananPage extends StatelessWidget {
+class DetailRumahMakanPage extends StatelessWidget {
   final int id;
 
-  const DetailMakananPage({super.key, required this.id});
+  const DetailRumahMakanPage({super.key, required this.id});
 
   Future<Map<String, dynamic>> fetchDetail(CookieRequest req, int id) async {
     final response = await req.get('http://127.0.0.1:8000/detail-json/$id/');
@@ -29,6 +29,27 @@ class DetailMakananPage extends StatelessWidget {
     } else {
       return "Tidak tersedia";
     }
+  }
+
+  Future<bool> _deleteRumahMakan(BuildContext context, int id) async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request
+          .post('http://127.0.0.1:8000/delete-rumahmakan-flutter/$id/', {
+        'id': id.toString(),
+      });
+
+      if (response['success']) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error deleting makanan: $e');
+    }
+    return false;
   }
 
   @override
@@ -124,13 +145,14 @@ class DetailMakananPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                //*===========================================Edit Button===========================================
+                    //*===========================================Edit Button===========================================
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditRumahMakanPage(id: data['rumah_makan']['id']),
+                            builder: (context) => EditRumahMakanPage(
+                                id: data['rumah_makan']['id']),
                           ),
                         );
                       },
@@ -148,10 +170,11 @@ class DetailMakananPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                //*===========================================Delete Button===========================================
+                    //*===========================================Delete Button===========================================
                     ElevatedButton(
                       onPressed: () {
-                        _showDeleteConfirmation(context, data['rumah_makan']['id']);
+                        _showDeleteConfirmation(
+                            context, data['rumah_makan']['id']);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -239,15 +262,14 @@ class DetailMakananPage extends StatelessWidget {
                 const SizedBox(height: 20),
                 //*===========================================List Makanan===========================================
                 const Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 10.0), 
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
                   child: Text(
                     "List Makanan",
                     textAlign: TextAlign.left,
                     style: TextStyle(
-                      fontSize: 20, 
-                      fontWeight: FontWeight.bold, 
-                      color: Colors.black, 
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -282,77 +304,50 @@ class DetailMakananPage extends StatelessWidget {
       bottomNavigationBar: const BottomNavBar(),
     );
   }
-}
 
-//* Untuk memunculkan popup ketika delete rumah makan
-void _showDeleteConfirmation(BuildContext context, int id) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Konfirmasi Hapus"),
-        content: const Text(
-          "Apakah Anda yakin ingin menghapus rumah makan ini? Semua makanan yang terkait juga akan dihapus.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Tutup dialog
-            },
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // Tutup dialog
-              final success = await _deleteRumahMakan(context, id);
-              if (success) {
-                // Kembali ke halaman utama jika berhasil
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text("Hapus"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Future<bool> _deleteRumahMakan(BuildContext context, int id) async {
-  try {
-    final response = await http.delete(
-      Uri.parse('http://127.0.0.1:8000/delete-rumahmakan/$id/'),
+  void _showDeleteConfirmation(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Hapus"),
+          content: const Text(
+              "Apakah Anda yakin ingin menghapus Rumah Makan ini?, menghapus akan sekaligus menghapus makanan yang berkaitan"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Tutup dialog
+                final success = await _deleteRumahMakan(context, id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? "Rumah Makan berhasil dihapus"
+                          : "Gagal menghapus Rumah Makan",
+                    ),
+                    backgroundColor: success ? Colors.green : Colors.red,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text(
+                "Hapus",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
-
-    if (response.statusCode == 200) {
-      // Tampilkan pesan sukses
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Rumah makan berhasil dihapus'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      return true;
-    } else {
-      // Tampilkan pesan gagal
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Gagal menghapus rumah makan'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
-    }
-  } catch (e) {
-    // Tampilkan pesan error
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Terjadi kesalahan, coba lagi'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return false;
   }
 }
 
