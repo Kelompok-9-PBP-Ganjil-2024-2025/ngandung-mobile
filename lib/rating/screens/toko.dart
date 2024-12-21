@@ -1,18 +1,16 @@
-// /lib/rating/pages/rating_page.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-// Import your custom models and widgets
-import '../models/rumahmakan.dart';
+import '../models/rumahmakan_model.dart';
 import '../widgets/rumahmakan_card.dart';
 
-class RatingPage extends StatefulWidget {
-  const RatingPage({super.key});
+class TokoPage extends StatefulWidget {
+  const TokoPage({super.key});
 
   @override
-  State<RatingPage> createState() => _RatingPageState();
+  State<TokoPage> createState() => _TokoPageState();
 }
 
-class _RatingPageState extends State<RatingPage> {
+class _TokoPageState extends State<TokoPage> {
   late Future<List<RumahMakan>> _futureRumahMakan;
 
   @override
