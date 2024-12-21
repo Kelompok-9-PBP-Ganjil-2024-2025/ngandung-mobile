@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.orange,
             ).copyWith(secondary: Colors.orange[400]),
           ),
-          home: const ForumScreen()),
+          home: const LoginApp()),
     );
   }
 }

@@ -1,23 +1,25 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/forum/forum_screen.dart';
+import 'package:provider/provider.dart'; // Pastikan menggunakan provider untuk CookieRequest
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
-class AddForumFormPage extends StatefulWidget {
-  const AddForumFormPage({super.key});
+class AddForumForm extends StatefulWidget {
+  const AddForumForm({super.key});
 
   @override
-  State<AddForumFormPage> createState() => _AddForumFormPageState();
+  State<AddForumForm> createState() => _AddForumFormState();
 }
 
-class _AddForumFormPageState extends State<AddForumFormPage> {
-  // Menambahkan GlobalKey untuk FormState
+class _AddForumFormState extends State<AddForumForm> {
   final _formKey = GlobalKey<FormState>();
-
-  // Variabel untuk menyimpan input dari masing-masing field
-  String _mood = "";
-  String _feelings = "";
-  int _moodIntensity = 0;
+  String _title = "";
+  String _content = "";
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -29,88 +31,57 @@ class _AddForumFormPageState extends State<AddForumFormPage> {
         foregroundColor: Colors.white,
       ),
       body: Form(
-        key: _formKey, // Menambahkan key pada widget Form
+        key: _formKey,
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Mengatur alignment children
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Field untuk Mood
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "Mood",
-                    labelText: "Mood",
+                    hintText: "Title",
+                    labelText: "Title",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
                   onChanged: (String? value) {
                     setState(() {
-                      _mood = value ?? "";
+                      _title = value!;
                     });
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Mood tidak boleh kosong!";
+                      return "Title tidak boleh kosong!";
                     }
                     return null;
                   },
                 ),
               ),
-              // Field untuk Feelings
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "Feelings",
-                    labelText: "Feelings",
+                    hintText: "Description/Content",
+                    labelText: "Description/Content",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
                   onChanged: (String? value) {
                     setState(() {
-                      _feelings = value ?? "";
+                      _content = value!;
                     });
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Feelings tidak boleh kosong!";
+                      return "Content tidak boleh kosong!";
                     }
                     return null;
                   },
                 ),
               ),
-              // Field untuk Mood Intensity
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Mood intensity",
-                    labelText: "Mood intensity",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  keyboardType: TextInputType.number, // Memastikan input angka
-                  onChanged: (String? value) {
-                    setState(() {
-                      _moodIntensity = int.tryParse(value ?? "") ?? 0;
-                    });
-                  },
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Mood intensity tidak boleh kosong!";
-                    }
-                    if (int.tryParse(value) == null) {
-                      return "Mood intensity harus berupa angka!";
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              // Tombol Save
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -118,16 +89,37 @@ class _AddForumFormPageState extends State<AddForumFormPage> {
                   child: ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).colorScheme.primary,
-                      ),
+                          Theme.of(context).colorScheme.primary),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Implementasikan fungsi penyimpanan di sini
-                        // Misalnya, simpan data ke database atau kirim ke server
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Data berhasil disimpan')),
+                        final response = await request.postJson(
+                          "http://127.0.0.1:8000/create-forum-flutter/",
+                          jsonEncode(<String, String>{
+                            'title': _title,
+                            'content': _content,
+                          }),
                         );
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Forum baru berhasil disimpan!"),
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ForumScreen()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Terdapat kesalahan, silakan coba lagi."),
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                     child: const Text(
