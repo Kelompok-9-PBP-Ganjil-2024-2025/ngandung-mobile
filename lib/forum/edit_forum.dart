@@ -1,170 +1,141 @@
+// edit_forum.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'forum_screen.dart';
 import 'models/forum_model.dart';
+import 'package:http/http.dart' as http;
 
-class EditForumForm extends StatefulWidget {
+class EditForumPage extends StatefulWidget {
   final Forum forum;
 
-  const EditForumForm({super.key, required this.forum});
+  const EditForumPage({Key? key, required this.forum}) : super(key: key);
 
   @override
-  State<EditForumForm> createState() => _EditForumFormState();
+  State<EditForumPage> createState() => _EditForumPageState();
 }
 
-class _EditForumFormState extends State<EditForumForm> {
+class _EditForumPageState extends State<EditForumPage> {
   final _formKey = GlobalKey<FormState>();
-
-  // Variabel penampung data input
   late String _title;
   late String _content;
 
   @override
   void initState() {
     super.initState();
-
-    // Isi nilai awal dari forum yang hendak diedit
     _title = widget.forum.fields.title;
     _content = widget.forum.fields.content;
   }
 
+  Future<void> editForum(CookieRequest request) async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      try {
+        final response = await request.postJson(
+          "http://10.0.2.2:8000/api/edit-forum-flutter/${widget.forum.pk}/", // Ganti dengan IP yang sesuai
+          jsonEncode(<String, String>{
+            'title': _title,
+            'content': _content,
+          }),
+        );
+
+        if (response['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Forum berhasil diupdate!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, true); // Kembalikan true untuk menyegarkan ForumScreen
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? "Gagal mengupdate forum."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Terjadi kesalahan. Silakan coba lagi."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Ambil CookieRequest dari provider
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          child: Text(
-            'Form Edit Forum',
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+        title: const Text('Edit Forum'),
+        backgroundColor: const Color(0xFF111111),
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Field title
-                TextFormField(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              // Field Title
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
                   initialValue: _title,
-                  decoration: InputDecoration(
-                    hintText: "Title",
-                    labelText: "Title",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _title = value!;
-                    });
+                  onSaved: (value) {
+                    _title = value ?? '';
                   },
-                  validator: (String? value) {
+                  validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Title tidak boleh kosong!";
+                      return 'Title tidak boleh kosong!';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-
-                // Field content
-                TextFormField(
+              ),
+              // Field Content
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
                   initialValue: _content,
-                  decoration: InputDecoration(
-                    hintText: "Description/Content",
-                    labelText: "Description/Content",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
+                  decoration: const InputDecoration(
+                    labelText: 'Content',
+                    border: OutlineInputBorder(),
                   ),
-                  minLines: 3,
                   maxLines: 5,
-                  onChanged: (String? value) {
-                    setState(() {
-                      _content = value!;
-                    });
+                  onSaved: (value) {
+                    _content = value ?? '';
                   },
-                  validator: (String? value) {
+                  validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Content tidak boleh kosong!";
+                      return 'Content tidak boleh kosong!';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-
-                // Tombol SAVE
-                Align(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        // Panggil endpoint edit forum di Django
-                        final response = await request.postJson(
-                          // Ganti URL di bawah sesuai urls.py Anda
-                          "http://127.0.0.1:8000/edit-forum-flutter/",
-                          jsonEncode(<String, String>{
-                            'title': _title,
-                            'content': _content,
-                          }),
-                        );
-
-                        if (context.mounted) {
-                          // Jika sukses, Django akan mengembalikan diskusi atau data yang diedit
-                          // Ubah pengecekan sesuai output respons di views.py
-                          if (response['discussion'] != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Forum berhasil diupdate!"),
-                              ),
-                            );
-                            // Arahkan kembali ke halaman ForumScreen (atau halaman lain sesuai kebutuhan)
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ForumScreen(),
-                              ),
-                            );
-                          } else if (response['error'] != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Error: ${response['error']}"),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text("Terdapat kesalahan, silakan coba lagi."),
-                              ),
-                            );
-                          }
-                        }
-                      }
-                    },
-                    child: const Text(
-                      "Save",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+              ),
+              const SizedBox(height: 20),
+              // Tombol Submit
+              ElevatedButton(
+                onPressed: () => editForum(request),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF9900),
                 ),
-              ],
-            ),
+                child: const Text(
+                  "Update",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
         ),
       ),
