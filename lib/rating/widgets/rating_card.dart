@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import '../models/rating_model.dart';
 import '../screens/rating_update.dart';
 
@@ -26,6 +30,7 @@ class RatingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     final stars = List.generate(
       rating.fields.rating,
       (i) => const Icon(Icons.star, color: Colors.yellow, size: 16),
@@ -57,38 +62,112 @@ class RatingCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             // Updated ElevatedButton with Edit (Pencil) Icon
-            ElevatedButton(
-              onPressed: () async {
-                bool? result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RatingUpdate(
-                      rating: rating.fields.rating,
-                      review: rating.fields.review,
-                      idRating: idRating,
-                      idRumahMakan: idRumahMakan,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Edit Button
+                ElevatedButton(
+                  onPressed: () async {
+                    bool? result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RatingUpdate(
+                          rating: rating.fields.rating,
+                          review: rating.fields.review,
+                          idRating: idRating,
+                          idRumahMakan: idRumahMakan,
+                        ),
+                      ),
+                    );
+                    if (result == true && onUpdate != null) {
+                      onUpdate!();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
+                    minimumSize: const Size(40, 40),
                   ),
-                );
-                if (result == true && onUpdate != null) {
-                  onUpdate!(); // Invoke the callback to refresh data
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.orange.shade400,
+                    size: 20,
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 8.0,
+                const SizedBox(width: 8), // Spacing between buttons
+                // Delete Button
+                ElevatedButton(
+                  onPressed: () async {
+                    bool? shouldDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Delete'),
+                          content: const Text(
+                              'Are you sure you want to delete this rating?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (shouldDelete == true) {
+                      final response = await request.postJson(
+                        "http://127.0.0.1:8000/api/rating-toko/delete-flutter/",
+                        jsonEncode({
+                          'id_rating': idRating,
+                          'id_rumah_makan': idRumahMakan,
+                        }),
+                      );
+
+                      if (context.mounted) {
+                        if (response['status'] == 'success') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Rating successfully deleted")),
+                          );
+                          if (onUpdate != null) {
+                            onUpdate!();
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Failed to delete rating")),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
+                    minimumSize: const Size(40, 40),
+                  ),
+                  child: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                    size: 20,
+                  ),
                 ),
-                minimumSize: const Size(40, 40),
-              ),
-              child: Icon(
-                Icons.edit,
-                color: Colors.orange.shade400,
-                size: 20,
-              ),
+              ],
             ),
           ],
         ),
