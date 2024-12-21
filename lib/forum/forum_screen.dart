@@ -141,17 +141,27 @@ class _ForumScreenState extends State<ForumScreen> {
                           ).then((value) {
                             if (value != null) {
                               if (value is Map<String, String>) {
-                                // Jika forum di-edit, update data lokal
-                                setState(() {
-                                  _forums[index].fields.title = value['title'] ?? _forums[index].fields.title;
-                                  _forums[index].fields.content = value['content'] ?? _forums[index].fields.content;
-                                });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Forum berhasil diupdate!"),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                                // Jika forum di-edit, update data lokal berdasarkan 'pk'
+                                String? updatedPk = value['pk'];
+                                String? updatedTitle = value['title'];
+                                String? updatedContent = value['content'];
+
+                                if (updatedPk != null && updatedTitle != null && updatedContent != null) {
+                                  setState(() {
+                                    // Cari index forum yang diupdate berdasarkan 'pk'
+                                    int forumIndex = _forums.indexWhere((forum) => forum.pk == updatedPk);
+                                    if (forumIndex != -1) {
+                                      _forums[forumIndex].fields.title = updatedTitle;
+                                      _forums[forumIndex].fields.content = updatedContent;
+                                    }
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Forum berhasil diupdate!"),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
                               } else if (value == true) {
                                 // Jika forum dihapus, refresh daftar forum
                                 _refreshForums();
