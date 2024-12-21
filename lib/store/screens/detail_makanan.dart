@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
+import 'package:ngandung_mobile/store/screens/edit_rumahmakan.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class DetailMakananPage extends StatelessWidget {
   final int id;
@@ -31,6 +35,7 @@ class DetailMakananPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final req = context.watch<CookieRequest>();
     return Scaffold(
+      //*===========================================AppBar===========================================
       appBar: PreferredSize(
         preferredSize:
             const Size.fromHeight(100), // Tinggi AppBar termasuk search bar
@@ -48,7 +53,6 @@ class DetailMakananPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Title
                 Text(
                   'NGANDUNG',
                   style: TextStyle(
@@ -103,6 +107,7 @@ class DetailMakananPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                //*===========================================Nama Rumah Makan===========================================
                 Center(
                   child: Text(
                     data['rumah_makan']
@@ -116,6 +121,54 @@ class DetailMakananPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                //*===========================================Edit Button===========================================
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditRumahMakanPage(id: id),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Edit Rumah Makan',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                //*===========================================Delete Button===========================================
+                    ElevatedButton(
+                      onPressed: () {
+                        _showDeleteConfirmation(context, id);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Hapus Rumah Makan',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                //*===========================================Detail Rumah Makan===========================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -137,7 +190,7 @@ class DetailMakananPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20.0),
-                
+                //*===========================================GMap Button===========================================
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFE9B12),
@@ -184,32 +237,33 @@ class DetailMakananPage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 20),
+                //*===========================================List Makanan===========================================
                 const Padding(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 10.0), // Padding tambahan
+                      horizontal: 10.0), 
                   child: Text(
                     "List Makanan",
                     textAlign: TextAlign.left,
                     style: TextStyle(
-                      fontSize: 20, // Ukuran teks judul
-                      fontWeight: FontWeight.bold, // Ketebalan teks
-                      color: Colors.black, // Warna teks
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.black, 
                     ),
                   ),
                 ),
                 const SizedBox(height: 15.0),
                 if (data['list_makanan'] != null)
                   ListView.builder(
-                    shrinkWrap: true, // Penting agar ListView mengikuti konten
+                    shrinkWrap: true, // * supaya ListView mengikuti konten
                     physics:
-                        const NeverScrollableScrollPhysics(), // Mencegah scroll tersendiri karena sudah dalam ListView parent
+                        const NeverScrollableScrollPhysics(), // * Mencegah scroll tersendiri
                     itemCount: (data['list_makanan'] as List<dynamic>).length,
                     itemBuilder: (context, index) {
                       final makanan =
                           (data['list_makanan'] as List<dynamic>)[index];
                       return Padding(
                         padding: const EdgeInsets.only(
-                            bottom: 8.0), // Spacing antar card
+                            bottom: 8.0), // * Spacing antar card
                         child: FoodCard(
                           nama: makanan['name'] ?? 'Tidak tersedia',
                           harga: makanan['price'] ?? 0,
@@ -227,6 +281,78 @@ class DetailMakananPage extends StatelessWidget {
       ),
       bottomNavigationBar: const BottomNavBar(),
     );
+  }
+}
+
+//* Untuk memunculkan popup ketika delete rumah makan
+void _showDeleteConfirmation(BuildContext context, int id) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Konfirmasi Hapus"),
+        content: const Text(
+          "Apakah Anda yakin ingin menghapus rumah makan ini? Semua makanan yang terkait juga akan dihapus.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Tutup dialog
+            },
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Tutup dialog
+              final success = await _deleteRumahMakan(context, id);
+              if (success) {
+                // Kembali ke halaman utama jika berhasil
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Hapus"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<bool> _deleteRumahMakan(BuildContext context, int id) async {
+  try {
+    final response = await http.delete(
+      Uri.parse('http://127.0.0.1:8000/delete-rumahmakan/$id/'),
+    );
+
+    if (response.statusCode == 200) {
+      // Tampilkan pesan sukses
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Rumah makan berhasil dihapus'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return true;
+    } else {
+      // Tampilkan pesan gagal
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal menghapus rumah makan'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+  } catch (e) {
+    // Tampilkan pesan error
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Terjadi kesalahan, coba lagi'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return false;
   }
 }
 

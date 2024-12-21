@@ -1,8 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
 
 class MakananFormPage extends StatefulWidget {
   const MakananFormPage({super.key});
@@ -13,18 +14,19 @@ class MakananFormPage extends StatefulWidget {
 
 class _MakananFormPageState extends State<MakananFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _hargaController = TextEditingController();
+
+  // Variabel untuk input
+  String _nama = '';
+  int _harga = 0;
+  String? _selectedRumahMakanId;
 
   // Data untuk dropdown
   List<dynamic> _rumahMakanList = [];
-  String? _selectedRumahMakanId;
 
   @override
   void initState() {
     super.initState();
-    final req =
-        CookieRequest(); // Gunakan CookieRequest dari context jika sudah terhubung dengan Provider
+    final req = CookieRequest();
     fetchListRumahMakan(req).then((data) {
       setState(() {
         _rumahMakanList = data;
@@ -47,6 +49,8 @@ class _MakananFormPageState extends State<MakananFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    // print(context.mounted);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tambah Makanan"),
@@ -61,11 +65,13 @@ class _MakananFormPageState extends State<MakananFormPage> {
             children: [
               // Input Nama Makanan
               TextFormField(
-                controller: _namaController,
                 decoration: const InputDecoration(
                   labelText: "Nama Makanan",
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  _nama = value;
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Nama makanan tidak boleh kosong";
@@ -77,12 +83,14 @@ class _MakananFormPageState extends State<MakananFormPage> {
 
               // Input Harga Makanan
               TextFormField(
-                controller: _hargaController,
                 decoration: const InputDecoration(
                   labelText: "Harga Makanan",
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  _harga = int.tryParse(value) ?? 0;
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Harga makanan tidak boleh kosong";
@@ -106,9 +114,11 @@ class _MakananFormPageState extends State<MakananFormPage> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  setState(() {
-                    _selectedRumahMakanId = value;
-                  });
+                  if (context.mounted) {
+                    setState(() {
+                      _selectedRumahMakanId = value;
+                    });
+                  }
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -125,9 +135,38 @@ class _MakananFormPageState extends State<MakananFormPage> {
               // Tombol Submit
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      _submitForm();
+                      if (!request.loggedIn) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Anda harus login terlebih dahulu!"),
+                          ),
+                        );
+                        return;
+                      }
+                      final response = await request.postJson(
+                        "http://127.0.0.1:8000/add-makanan-flutter/",
+                        jsonEncode(<String, dynamic>{
+                          "name": _nama,
+                          "price": _harga,
+                          "toko_id": _selectedRumahMakanId,
+                        }),
+                      );
+                      if (context.mounted == true) {
+                        if (response['status'] == 'success') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Makanan berhasil ditambahkan")),
+                          );
+                          Navigator.pop(context, true);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Gagal menambahkan makanan")),
+                          );
+                        }
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -148,71 +187,5 @@ class _MakananFormPageState extends State<MakananFormPage> {
         ),
       ),
     );
-  }
-
-  void _submitForm() async {
-    final nama = _namaController.text;
-    final harga = int.parse(_hargaController.text);
-    final rumahMakanId = _selectedRumahMakanId;
-
-    try {
-      final response = await fetchAddMakanan(nama, harga, rumahMakanId!);
-
-      if (response['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Makanan berhasil ditambahkan")),
-        );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(response['message'] ?? "Gagal menambahkan makanan")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchAddMakanan(
-    String nama,
-    int harga,
-    String rumahMakanId,
-  ) async {
-    final url = Uri.parse("http://127.0.0.1:8000/add-makanan-ajax/");
-
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: {
-        "name": nama,
-        "price": harga.toString(),
-        "toko_id": rumahMakanId,
-      },
-    );
-
-    if (response.statusCode == 201) {
-      return {"success": true, "message": "Makanan berhasil ditambahkan"};
-    } else {
-      final responseBody = response.body;
-      return {
-        "success": false,
-        "message": responseBody.isNotEmpty
-            ? responseBody
-            : "Terjadi kesalahan saat menambahkan makanan"
-      };
-    }
-  }
-
-  @override
-  void dispose() {
-    _namaController.dispose();
-    _hargaController.dispose();
-    super.dispose();
   }
 }

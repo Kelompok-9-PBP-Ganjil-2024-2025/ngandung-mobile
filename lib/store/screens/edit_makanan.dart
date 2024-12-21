@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EditMakananPage extends StatefulWidget {
   final int id;
@@ -42,7 +44,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
       setState(() {
         _namaController.text = response['name'];
         _hargaController.text = response['price'].toString();
-        _selectedRumahMakanId = response['rumah_makan'].toString();
+        _selectedRumahMakanId = response['rumah_makan']['id'].toString();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,32 +62,9 @@ class _EditMakananPageState extends State<EditMakananPage> {
     }
   }
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/update-makanan/${widget.id}/'),
-        body: {
-          'nama': _namaController.text,
-          'harga': int.parse(_hargaController.text),
-          'rumah_makan_id': _selectedRumahMakanId,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Makanan berhasil diperbarui")),
-        );
-        Navigator.pop(context, true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${response.body}")),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit Makanan"),
@@ -96,36 +75,36 @@ class _EditMakananPageState extends State<EditMakananPage> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Nama Makanan
+              // Input Nama Makanan
               TextFormField(
-                  controller: _namaController,
-                  decoration: const InputDecoration(
-                    labelText: "Nama Makanan",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Nama makanan tidak boleh kosong";
-                    }
-                    return null;
-                  }),
+                controller: _namaController,
+                decoration: const InputDecoration(
+                  labelText: "Nama Makanan",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Nama makanan tidak boleh kosong";
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 16),
 
-              // Harga
+              // Input Harga Makanan
               TextFormField(
                 controller: _hargaController,
                 decoration: const InputDecoration(
-                  labelText: "Harga",
+                  labelText: "Harga Makanan",
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Harga makanan tidak boleh kosong";
-                  }
-                  if (int.tryParse(value) == null) {
-                    return "Harga harus berupa angka";
+                  final harga = int.tryParse(value ?? '') ?? 0;
+                  if (harga <= 0) {
+                    return "Harga makanan harus lebih besar dari 0";
                   }
                   return null;
                 },
@@ -135,6 +114,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
               // Dropdown Rumah Makan
               DropdownButtonFormField<String>(
                 value: _selectedRumahMakanId,
+                hint: const Text("Pilih Rumah Makan"),
                 items: _rumahMakanList.map((rm) {
                   return DropdownMenuItem<String>(
                     value: rm['id'].toString(),
@@ -147,7 +127,6 @@ class _EditMakananPageState extends State<EditMakananPage> {
                   });
                 },
                 decoration: const InputDecoration(
-                  labelText: "Rumah Makan",
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
@@ -162,9 +141,38 @@ class _EditMakananPageState extends State<EditMakananPage> {
               // Tombol Submit
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      _submitForm();
+                      if (!request.loggedIn) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Anda harus login terlebih dahulu!"),
+                          ),
+                        );
+                        return;
+                      }
+                      final response = await request.postJson(
+                        "http://127.0.0.1:8000/edit-detail-makanan/${widget.id}/",
+                        jsonEncode(<String, dynamic>{
+                          "name": _namaController.text,
+                          "price": int.parse(_hargaController.text),
+                          "toko_id": _selectedRumahMakanId,
+                        }),
+                      );
+                      if (context.mounted) {
+                        if (response['status'] == 'success') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Makanan berhasil diperbarui")),
+                          );
+                          Navigator.pop(context, true);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Gagal memperbarui makanan")),
+                          );
+                        }
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -175,7 +183,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
                     ),
                   ),
                   child: const Text(
-                    "Simpan Perubahan",
+                    "Perbarui",
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
@@ -185,12 +193,5 @@ class _EditMakananPageState extends State<EditMakananPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _namaController.dispose();
-    _hargaController.dispose();
-    super.dispose();
   }
 }

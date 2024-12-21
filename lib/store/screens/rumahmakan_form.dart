@@ -1,7 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:ngandung_mobile/landing/home_screen.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class RumahMakanFormPage extends StatefulWidget {
   const RumahMakanFormPage({super.key});
@@ -12,75 +16,21 @@ class RumahMakanFormPage extends StatefulWidget {
 
 class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _kodeProvController = TextEditingController();
-  final TextEditingController _namaProvController = TextEditingController();
-  final TextEditingController _bpsKodeController = TextEditingController();
-  final TextEditingController _bpsNamaController = TextEditingController();
-  final TextEditingController _rumahMakanNameController =
-      TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
-  final TextEditingController _yearController = TextEditingController();
-  final TextEditingController _masakanDariController = TextEditingController();
-  final TextEditingController _jenisMakananController = TextEditingController();
-
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final response = await fetchAddRumahMakan({
-          "kode_provinsi": _kodeProvController.text,
-          "nama_provinsi": _namaProvController.text,
-          "bps_kode_kabupaten_kota": _bpsKodeController.text,
-          "bps_nama_kabupaten_kota": _bpsNamaController.text,
-          "nama_rumah_makan": _rumahMakanNameController.text,
-          "alamat": _addressController.text,
-          "latitude": _latitudeController.text,
-          "longitude": _longitudeController.text,
-          "tahun": _yearController.text,
-          "masakan_dari_mana": _masakanDariController.text,
-          "makanan_berat_ringan": _jenisMakananController.text,
-        });
-
-        if (response['success']) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Rumah makan berhasil ditambahkan")),
-          );
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    response['message'] ?? "Gagal menambahkan rumah makan")),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
-      }
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchAddRumahMakan(
-      Map<String, String> data) async {
-    final url = Uri.parse("http://127.0.0.1:8000/add-rumahmakan-flutter/");
-
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: data,
-    );
-
-    if (response.statusCode == 201) {
-      return {"success": true};
-    } else {
-      return {"success": false, "message": response.body};
-    }
-  }
+  int _kodeProv = 0;
+  String _namaProv = "";
+  int _bpsKode = 0;
+  String _bpsNama = "";
+  String _namaRumahMakan = "";
+  String _alamat = "";
+  String _latitude = "";
+  String _longitude = "";
+  int _tahun = 0;
+  String _masakanDari = "";
+  String _jenisMakanan = "";
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tambah Rumah Makan"),
@@ -96,11 +46,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
               children: [
                 // Input Kode Provinsi
                 TextFormField(
-                  controller: _kodeProvController,
                   decoration: const InputDecoration(
                     labelText: "Kode Provinsi",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _kodeProv = int.tryParse(value)!;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Kode Provinsi tidak boleh kosong";
@@ -112,11 +64,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Nama Rumah Makan
                 TextFormField(
-                  controller: _rumahMakanNameController,
                   decoration: const InputDecoration(
                     labelText: "Nama Rumah Makan",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _namaRumahMakan = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Nama Rumah Makan tidak boleh kosong";
@@ -128,11 +82,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Alamat
                 TextFormField(
-                  controller: _addressController,
                   decoration: const InputDecoration(
                     labelText: "Alamat",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _alamat = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Alamat tidak boleh kosong";
@@ -144,11 +100,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Nama Provinsi
                 TextFormField(
-                  controller: _namaProvController,
                   decoration: const InputDecoration(
                     labelText: "Nama Provinsi",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _namaProv = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Nama Provinsi tidak boleh kosong";
@@ -160,11 +118,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input BPS Kode Kabupaten/Kota
                 TextFormField(
-                  controller: _bpsKodeController,
                   decoration: const InputDecoration(
                     labelText: "BPS Kode Kabupaten/Kota",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _bpsKode = int.tryParse(value)!;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "BPS Kode tidak boleh kosong";
@@ -176,11 +136,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Nama Kabupaten/Kota
                 TextFormField(
-                  controller: _bpsNamaController,
                   decoration: const InputDecoration(
                     labelText: "BPS Nama Kabupaten/Kota",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _bpsNama = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "BPS Nama tidak boleh kosong";
@@ -192,12 +154,14 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Latitude
                 TextFormField(
-                  controller: _latitudeController,
                   decoration: const InputDecoration(
                     labelText: "Latitude",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _latitude = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Latitude tidak boleh kosong";
@@ -212,12 +176,14 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Longitude
                 TextFormField(
-                  controller: _longitudeController,
                   decoration: const InputDecoration(
                     labelText: "Longitude",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _longitude = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Longitude tidak boleh kosong";
@@ -232,11 +198,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Tahun
                 TextFormField(
-                  controller: _yearController,
                   decoration: const InputDecoration(
                     labelText: "Tahun",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _tahun = int.tryParse(value)!;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Tahun tidak boleh kosong";
@@ -251,11 +219,13 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Masakan Dari Mana
                 TextFormField(
-                  controller: _masakanDariController,
                   decoration: const InputDecoration(
                     labelText: "Masakan Dari Mana",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _masakanDari = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Masakan Dari Mana tidak boleh kosong";
@@ -267,14 +237,21 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
 
                 // Input Jenis Makanan
                 TextFormField(
-                  controller: _jenisMakananController,
                   decoration: const InputDecoration(
                     labelText: "Jenis Makanan",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    _jenisMakanan = value;
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Jenis Makanan tidak boleh kosong";
+                    }
+                    if (value != 'semua' &&
+                        value != 'berat' &&
+                        value != 'ringan') {
+                      return "Cantumkan jenis makanan yang benar!";
                     }
                     return null;
                   },
@@ -284,7 +261,55 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
                 // Tombol Submit
                 Center(
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        if (!request.loggedIn) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text("Anda harus login terlebih dahulu!"),
+                            ),
+                          );
+                          return;
+                        }
+                        final response = await request.postJson(
+                          "http://127.0.0.1:8000/add-rumahmakan-flutter/",
+                          jsonEncode(<String, dynamic>{
+                            "kode_provinsi": _kodeProv,
+                            "nama_provinsi": _namaProv,
+                            "bps_kode_kabupaten_kota": _bpsKode,
+                            "bps_nama_kabupaten_kota": _bpsNama,
+                            "nama_rumah_makan": _namaRumahMakan,
+                            "alamat": _alamat,
+                            "latitude": _latitude,
+                            "longitude": _longitude,
+                            "tahun": _tahun,
+                            "masakan_dari_mana": _masakanDari,
+                            "makanan_berat_ringan": _jenisMakanan,
+                          }),
+                        );
+                        if (mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Rumah Makan berhasil ditambahkan")),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Gagal menambahkan Rumah Makan baru")),
+                            );
+                          }
+                        }
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(
@@ -304,20 +329,5 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _kodeProvController.dispose();
-    _namaProvController.dispose();
-    _bpsKodeController.dispose();
-    _bpsNamaController.dispose();
-    _rumahMakanNameController.dispose();
-    _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
-    _masakanDariController.dispose();
-    _jenisMakananController.dispose();
-    super.dispose();
   }
 }

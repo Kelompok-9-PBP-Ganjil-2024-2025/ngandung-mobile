@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EditRumahMakanPage extends StatefulWidget {
   final int id;
@@ -48,7 +50,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
         _addressController.text = response['alamat'];
         _latitudeController.text = response['latitude'].toString();
         _longitudeController.text = response['longitude'].toString();
-        _yearController.text = response['tahun'];
+        _yearController.text = response['tahun'].toString();
         _masakanDariController.text = response['masakan_dari_mana'];
         _jenisMakananController.text = response['makanan_berat_ringan'];
       });
@@ -59,43 +61,12 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
     }
   }
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/update-makanan/${widget.id}/'),
-        body: {
-          'kode_provinsi': _kodeProvController.text,
-          'nama_provinsi': _namaProvController.text,
-          'bps_kode_kabupaten_kota': _bpsKodeController.text,
-          'bps_nama_kabupaten_kota': _bpsNamaController.text,
-          'nama_rumah_makan': _rumahMakanNameController.text,
-          'alamat': _addressController.text,
-          'latitude': _latitudeController.text,
-          'longitude': _longitudeController.text,
-          'tahun': _yearController.text,
-          'masakan_dari_mana': _masakanDariController.text,
-          'makanan_berat_ringan': _jenisMakananController.text,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Data Rumah Makan berhasil diperbarui")),
-        );
-        Navigator.pop(context, true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${response.body}")),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Tambah Rumah Makan"),
+        title: const Text("Edit Rumah Makan"),
         backgroundColor: Colors.orange,
       ),
       body: Padding(
@@ -106,7 +77,8 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Input Kode Provinsi
+                const SizedBox(height: 20),
+                //*===========================================Input Kode Provinsi===========================================
                 TextFormField(
                   controller: _kodeProvController,
                   decoration: const InputDecoration(
@@ -122,7 +94,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Nama Rumah Makan
+                //*===========================================Input Nama Rumah Makan===========================================
                 TextFormField(
                   controller: _rumahMakanNameController,
                   decoration: const InputDecoration(
@@ -138,7 +110,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Alamat
+                //*===========================================Input Alamat===========================================
                 TextFormField(
                   controller: _addressController,
                   decoration: const InputDecoration(
@@ -154,7 +126,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Nama Provinsi
+                //*===========================================Input Nama Provinsi===========================================
                 TextFormField(
                   controller: _namaProvController,
                   decoration: const InputDecoration(
@@ -170,7 +142,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input BPS Kode Kabupaten/Kota
+                //*===========================================Input BPS Kode Kabupaten/Kota===========================================
                 TextFormField(
                   controller: _bpsKodeController,
                   decoration: const InputDecoration(
@@ -186,7 +158,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Nama Kabupaten/Kota
+                //*===========================================Input Nama Kabupaten/Kota===========================================
                 TextFormField(
                   controller: _bpsNamaController,
                   decoration: const InputDecoration(
@@ -202,7 +174,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Latitude
+                //* ===========================================Input Latitude===========================================
                 TextFormField(
                   controller: _latitudeController,
                   decoration: const InputDecoration(
@@ -222,7 +194,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Longitude
+                //* ===========================================Input Longitude===========================================
                 TextFormField(
                   controller: _longitudeController,
                   decoration: const InputDecoration(
@@ -242,7 +214,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Tahun
+                //* ===========================================Input Tahun===========================================
                 TextFormField(
                   controller: _yearController,
                   decoration: const InputDecoration(
@@ -261,7 +233,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Masakan Dari Mana
+                //*===========================================Input Masakan Dari Mana===========================================
                 TextFormField(
                   controller: _masakanDariController,
                   decoration: const InputDecoration(
@@ -277,7 +249,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Input Jenis Makanan
+                //*===========================================Input Jenis Makanan===========================================
                 TextFormField(
                   controller: _jenisMakananController,
                   decoration: const InputDecoration(
@@ -288,15 +260,65 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                     if (value == null || value.isEmpty) {
                       return "Jenis Makanan tidak boleh kosong";
                     }
+                    if (value != 'semua' ||
+                        value != 'berat' ||
+                        value != 'ringan') {
+                      return "Cantumkan jenis makanan yang benar!";
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
 
-                // Tombol Submit
+                //*===========================================Tombol Submit===========================================
                 Center(
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        if (!request.loggedIn) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text("Anda harus login terlebih dahulu!"),
+                            ),
+                          );
+                          return;
+                        }
+                        final response = await request.postJson(
+                          "http://127.0.0.1:8000/edit-detail-rumahmakan/${widget.id}/",
+                          jsonEncode(<String, dynamic>{
+                            'kode_provinsi': _kodeProvController.text,
+                            'nama_provinsi': _namaProvController.text,
+                            'bps_kode_kabupaten_kota': _bpsKodeController.text,
+                            'bps_nama_kabupaten_kota': _bpsNamaController.text,
+                            'nama_rumah_makan': _rumahMakanNameController.text,
+                            'alamat': _addressController.text,
+                            'latitude': _latitudeController.text,
+                            'longitude': _longitudeController.text,
+                            'tahun': _yearController.text,
+                            'masakan_dari_mana': _masakanDariController.text,
+                            'makanan_berat_ringan':
+                                _jenisMakananController.text,
+                          }),
+                        );
+                        if (mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Rumah Makan berhasil diperbarui")),
+                            );
+                            Navigator.pop(context, true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Gagal memperbarui Rumah Makan baru")),
+                            );
+                          }
+                        }
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(
@@ -316,20 +338,5 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _kodeProvController.dispose();
-    _namaProvController.dispose();
-    _bpsKodeController.dispose();
-    _bpsNamaController.dispose();
-    _rumahMakanNameController.dispose();
-    _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
-    _masakanDariController.dispose();
-    _jenisMakananController.dispose();
-    super.dispose();
   }
 }

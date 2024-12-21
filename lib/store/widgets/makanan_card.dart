@@ -1,5 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/store/screens/detail_makanan.dart';
+import 'package:ngandung_mobile/store/screens/edit_makanan.dart';
+import 'package:http/http.dart' as http;
 
 class MakananCard extends StatelessWidget {
   final String imageurl;
@@ -27,7 +31,7 @@ class MakananCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image with full width and fixed height
+              //*===========================================Image===========================================
               ClipRRect(
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(15)),
@@ -48,13 +52,13 @@ class MakananCard extends StatelessWidget {
                 ),
               ),
 
-              // Padding for text content
+              //*===========================================Text Content===========================================
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Food name
+                    //*===========================================Nama Makanan===========================================
                     Text(
                       name,
                       style: const TextStyle(
@@ -67,7 +71,7 @@ class MakananCard extends StatelessWidget {
 
                     const SizedBox(height: 8),
 
-                    // Price
+                    //*===========================================Harga Makanan===========================================
                     Text(
                       "Rp ${price.toString()}.00",
                       style: const TextStyle(
@@ -83,7 +87,7 @@ class MakananCard extends StatelessWidget {
             ],
           ),
 
-          // Tombol di pojok kiri bawah
+          //*===========================================Tombol detail===========================================
           Positioned(
               bottom: 10,
               left: 10,
@@ -91,11 +95,10 @@ class MakananCard extends StatelessWidget {
                 onPressed: () {
                   // Aksi tombol
                   Navigator.push(
-                    context, 
-                    MaterialPageRoute(
-                      builder: (context) => DetailMakananPage(id: id),
-                    )
-                  );
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailMakananPage(id: id),
+                      ));
                 },
                 style: ElevatedButton.styleFrom(
                   // Warna latar belakang button
@@ -106,7 +109,8 @@ class MakananCard extends StatelessWidget {
                     borderRadius:
                         BorderRadius.circular(10), // Atur radius sudut
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   elevation: 3,
                 ),
                 child: const Text(
@@ -118,8 +122,104 @@ class MakananCard extends StatelessWidget {
                   ),
                 ),
               )),
+          //*===========================================Button Edit & Delete===========================================
+          Positioned(
+            bottom: 10,
+            right: 10,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                //* Tombol Edit
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditMakananPage(id: id),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                  color: Colors.blue,
+                ),
+
+                //* Tombol Delete
+                IconButton(
+                  onPressed: () {
+                    _showDeleteConfirmation(context, id);
+                  },
+                  icon: const Icon(Icons.delete),
+                  color: Colors.red,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  //* Memunculkan popup ketika delete makanan
+  void _showDeleteConfirmation(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Hapus"),
+          content: const Text("Apakah Anda yakin ingin menghapus makanan ini?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Tutup dialog
+                final success = await _deleteMakanan(id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? "Makanan berhasil dihapus"
+                          : "Gagal menghapus makanan",
+                    ),
+                    backgroundColor: success ? Colors.green : Colors.red,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text(
+                "Hapus",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _deleteMakanan(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('http://127.0.0.1:8000/delete-makanan-flutter/$id/'),
+        headers: {
+          'Authorization': 'Bearer YOUR_TOKEN', // Tambahkan jika ada token
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true; // Indikasi berhasil
+      } else {
+        return false; // Indikasi gagal
+      }
+    } catch (e) {
+      return false; // Error saat proses hapus
+    }
   }
 }
