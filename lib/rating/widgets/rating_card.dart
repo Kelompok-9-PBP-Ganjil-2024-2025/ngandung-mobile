@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/rating_model.dart';
+import '../screens/rating_update.dart';
 
 class RatingCard extends StatelessWidget {
   final Rating rating;
   final String userName;
   final int idRating;
   final int idRumahMakan;
+  final VoidCallback? onUpdate; // Add onUpdate callback
 
   const RatingCard({
     super.key,
@@ -14,6 +16,7 @@ class RatingCard extends StatelessWidget {
     required this.userName,
     required this.idRating,
     required this.idRumahMakan,
+    this.onUpdate, // Initialize callback
   });
 
   String _formatDate(DateTime date) {
@@ -51,6 +54,27 @@ class RatingCard extends StatelessWidget {
             Text(
               _formatDate(rating.fields.tanggal),
               style: const TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RatingUpdate(
+                      rating: rating.fields.rating,
+                      review: rating.fields.review,
+                      idRating: idRating,
+                      idRumahMakan: idRumahMakan,
+                    ),
+                  ),
+                ).then((result) {
+                  if (result == true && onUpdate != null) {
+                    onUpdate!(); // Invoke the callback to refresh data
+                  }
+                });
+              },
+              child: const Text("Update"),
             ),
           ],
         ),

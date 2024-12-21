@@ -16,7 +16,6 @@ class RatingPage extends StatefulWidget {
 }
 
 // Helper model to store rating + user name
-
 class RatingWithUser {
   final Rating rating;
   final String userName;
@@ -229,6 +228,14 @@ class _RatingPageState extends State<RatingPage> {
                           userName: row.userName,
                           idRating: row.rating.pk,
                           idRumahMakan: widget.id,
+                          onUpdate: () {
+                            // Provide the callback
+                            setState(() {
+                              _futureRatings =
+                                  _fetchRatingsWithUsers(widget.id);
+                              _futureRumahMakan = _fetchRumahMakan(widget.id);
+                            });
+                          },
                         );
                       },
                     ),
