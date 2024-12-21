@@ -200,25 +200,35 @@ class _RatingPageState extends State<RatingPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Center(
+                        Center(
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange[400],
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
                           onPressed: () async {
-                            bool? result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RatingForm(id: widget.id),
-                              ),
-                            );
-                            if (result == true) {
-                              setState(() {
-                                _futureRatings =
-                                    _fetchRatingsWithUsers(widget.id);
-                                _futureRumahMakan = _fetchRumahMakan(widget.id);
-                                _isUpdated = true;
-                              });
-                            }
+                          bool? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                            builder: (context) => RatingForm(id: widget.id),
+                            ),
+                          );
+                          if (result == true) {
+                            setState(() {
+                            _futureRatings =
+                              _fetchRatingsWithUsers(widget.id);
+                            _futureRumahMakan = _fetchRumahMakan(widget.id);
+                            _isUpdated = true;
+                            });
+                          }
                           },
-                          child: const Text('Create Review'),
+                          child: const Text(
+                          'Create Review',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

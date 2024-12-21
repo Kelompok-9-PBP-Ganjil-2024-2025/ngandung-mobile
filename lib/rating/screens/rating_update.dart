@@ -75,6 +75,11 @@ class _RatingUpdateState extends State<RatingUpdate> {
             const SizedBox(height: 20),
             // Update Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[400],
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              ),
               onPressed: () async {
                 if (_rating > 0 && _reviewController.text.isNotEmpty) {
                   final response = await request.postJson(
@@ -108,7 +113,13 @@ class _RatingUpdateState extends State<RatingUpdate> {
                   );
                 }
               },
-              child: const Text('Update'),
+              child: const Text(
+                'Update',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ],
         ),

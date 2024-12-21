@@ -56,6 +56,7 @@ class RatingCard extends StatelessWidget {
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
             const SizedBox(height: 8),
+            // Updated ElevatedButton with Edit (Pencil) Icon
             ElevatedButton(
               onPressed: () async {
                 bool? result = await Navigator.push(
@@ -73,7 +74,21 @@ class RatingCard extends StatelessWidget {
                   onUpdate!(); // Invoke the callback to refresh data
                 }
               },
-              child: const Text("Update"),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
+                minimumSize: const Size(40, 40),
+              ),
+              child: Icon(
+                Icons.edit,
+                color: Colors.orange.shade400,
+                size: 20,
+              ),
             ),
           ],
         ),

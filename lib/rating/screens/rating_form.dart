@@ -58,6 +58,11 @@ class _RatingFormState extends State<RatingForm> {
             const SizedBox(height: 20),
             // Create Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[400],
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              ),
               onPressed: () async {
                 if (_rating > 0 && _reviewController.text.isNotEmpty) {
                   final response = await request.postJson(
@@ -90,7 +95,13 @@ class _RatingFormState extends State<RatingForm> {
                   );
                 }
               },
-              child: const Text('Create'),
+              child: const Text(
+                'Create',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ],
         ),
