@@ -3,20 +3,21 @@
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/store/screens/detail_makanan.dart';
 import 'package:ngandung_mobile/store/screens/edit_makanan.dart';
-import 'package:http/http.dart' as http;
 
 class MakananCard extends StatelessWidget {
   final String imageurl;
   final String name;
   final int price;
   final int id;
+  final Function() onDelete;
 
   const MakananCard({
     super.key,
     required this.imageurl,
     required this.name,
     required this.price,
-    required this.id,
+    required this.id, 
+    required this.onDelete,
   });
 
   @override
@@ -145,9 +146,7 @@ class MakananCard extends StatelessWidget {
 
                 //* Tombol Delete
                 IconButton(
-                  onPressed: () {
-                    _showDeleteConfirmation(context, id);
-                  },
+                  onPressed: onDelete,
                   icon: const Icon(Icons.delete),
                   color: Colors.red,
                 ),
@@ -157,69 +156,5 @@ class MakananCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  //* Memunculkan popup ketika delete makanan
-  void _showDeleteConfirmation(BuildContext context, int id) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Konfirmasi Hapus"),
-          content: const Text("Apakah Anda yakin ingin menghapus makanan ini?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text(
-                "Batal",
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Tutup dialog
-                final success = await _deleteMakanan(id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      success
-                          ? "Makanan berhasil dihapus"
-                          : "Gagal menghapus makanan",
-                    ),
-                    backgroundColor: success ? Colors.green : Colors.red,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text(
-                "Hapus",
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<bool> _deleteMakanan(int id) async {
-    try {
-      final response = await http.delete(
-        Uri.parse('http://127.0.0.1:8000/delete-makanan-flutter/$id/'),
-        headers: {
-          'Authorization': 'Bearer YOUR_TOKEN', // Tambahkan jika ada token
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return true; // Indikasi berhasil
-      } else {
-        return false; // Indikasi gagal
-      }
-    } catch (e) {
-      return false; // Error saat proses hapus
-    }
   }
 }

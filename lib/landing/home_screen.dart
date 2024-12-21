@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/models/makanan.dart';
@@ -50,6 +52,29 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
+  Future<bool> _deleteMakanan(BuildContext context, int id) async {
+    final request = context.read<CookieRequest>();
+    try {
+        final response = await request.post(
+            'http://127.0.0.1:8000/delete-makanan-flutter/$id/',
+            {
+                'id': id.toString(),
+            }
+        );
+        
+        if (response['success']) {
+            setState(() {
+                _allMakanan.removeWhere((makanan) => makanan.pk == id);
+                _filteredMakanan.removeWhere((makanan) => makanan.pk == id);
+            });
+            return true;
+        }
+    } catch (e) {
+        debugPrint('Error deleting makanan: $e');
+    }
+    return false;
+}
 
   @override
   void initState() {
@@ -173,9 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.end, // Tombol di kiri
             children: [
               Padding(
-                padding: const EdgeInsets.only(
-                    left: 16.0,
-                    right: 8.0), 
+                padding: const EdgeInsets.only(left: 16.0, right: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -273,6 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: makanan.fields.name,
                     price: makanan.fields.price,
                     id: makanan.pk,
+                    onDelete: () =>
+                        _showDeleteConfirmation(context, makanan.pk),
                   );
                 },
               );
@@ -281,6 +306,50 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Hapus"),
+          content: const Text("Apakah Anda yakin ingin menghapus makanan ini?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Tutup dialog
+                final success = await _deleteMakanan(context, id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? "Makanan berhasil dihapus"
+                          : "Gagal menghapus makanan",
+                    ),
+                    backgroundColor: success ? Colors.green : Colors.red,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text(
+                "Hapus",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
