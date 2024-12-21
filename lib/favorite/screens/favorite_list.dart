@@ -47,6 +47,28 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     }
   }
 
+  // Fungsi untuk menghapus data favorit
+  Future<void> deleteFavorite(CookieRequest request, int favoriteId) async {
+    try {
+      final response = await request.post(
+        'http://127.0.0.1:8000/api/user/favorites/$favoriteId/delete/',
+        {}, // Data kosong (karena hanya menggunakan metode POST untuk aksi delete)
+      );
+      if (response['message'] == 'Favorite deleted successfully') {
+        setState(() {
+          allRestaurants
+              .removeWhere((favorite) => favorite['id'] == favoriteId);
+          filteredRestaurants
+              .removeWhere((favorite) => favorite['id'] == favoriteId);
+        });
+      } else {
+        throw Exception('Failed to delete favorite');
+      }
+    } catch (e) {
+      print('Error deleting favorite: $e');
+    }
+  }
+
   // Fungsi untuk filter restoran berdasarkan nama atau lokasi
   void filterRestaurants(String query) {
     setState(() {
@@ -140,8 +162,9 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                             ),
                             itemCount: filteredRestaurants.length,
                             itemBuilder: (context, index) {
-                              final restaurant =
-                                  filteredRestaurants[index]['rumah_makan'];
+                              final favorite = filteredRestaurants[index];
+                              final restaurant = favorite['rumah_makan'];
+
                               return Card(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -202,6 +225,53 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4.0),
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          AlertDialog(
+                                                        title: Text(
+                                                            'Konfirmasi Hapus'),
+                                                        content: Text(
+                                                            'Apakah Anda yakin ingin menghapus restoran ini dari favorit?'),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context),
+                                                            child:
+                                                                Text('Batal'),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              deleteFavorite(
+                                                                context.read<
+                                                                    CookieRequest>(),
+                                                                favorite['id'],
+                                                              );
+                                                            },
+                                                            child:
+                                                                Text('Hapus'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -215,7 +285,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                 ),
               ],
             ),
-      bottomNavigationBar: BottomNavBar(), // Tambahkan Navbar di sini
+      bottomNavigationBar: BottomNavBar(), // Navbar di sini
     );
   }
 }
