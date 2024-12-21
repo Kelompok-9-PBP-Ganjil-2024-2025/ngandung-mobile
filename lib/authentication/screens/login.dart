@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/poll/screens/polls_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ngandung_mobile/poll/screens/polls_screen.dart';
-//import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart';
+import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart';
 import 'package:ngandung_mobile/authentication/screens/register.dart';
 
 void main() {
@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                     ),
                   ),
                   const SizedBox(height: 12.0),
@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                     ),
                     obscureText: true,
                   ),
@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                       // Untuk menyambungkan Android emulator dengan Django pada localhost,
                       // gunakan URL http://10.0.2.2/
                       final response = await request
-                          .login("http://127.0.0.1:8000/auth/login/", {
+                          .login("http://10.0.2.2:8000/auth/login/", {
                         'username': username,
                         'password': password,
                       });
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                             ..showSnackBar(
                               SnackBar(
                                   content:
-                                      Text("$message Selamat datang, $uname.")),
+                                  Text("$message Selamat datang, $uname.")),
                             );
                         }
                       } else {

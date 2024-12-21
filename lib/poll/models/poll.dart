@@ -1,67 +1,37 @@
-import 'package:uuid/uuid.dart';
+import 'dart:convert';
+
+Poll pollFromJson(String str) => Poll.fromJson(json.decode(str));
+
+String pollToJson(Poll data) => json.encode(data.toJson());
 
 class Poll {
-  final String id;
-  final String authorUsername;
-  final String question;
-  final bool isActive;
-  final List<Choice> choices;
+  String id;
+  String author;
+  String question;
+  bool isActive;
+  bool viewResults;
 
   Poll({
     required this.id,
-    required this.authorUsername,
+    required this.author,
     required this.question,
     required this.isActive,
-    required this.choices,
+    this.viewResults = true,
   });
 
-  factory Poll.fromJson(Map<String, dynamic> json) {
-    return Poll(
-      id: json['id'] ?? const Uuid().v4(),
-      authorUsername: json['author'] ?? '',
-      question: json['question'] ?? '',
-      isActive: json['is_active'] ?? true,
-      choices: (json['choices'] as List?)
-          ?.map((choice) => Choice.fromJson(choice))
-          .toList() ?? [],
-    );
-  }
+  factory Poll.fromJson(Map<String, dynamic> json) => Poll(
+    id: json["id"],
+    author: json["author"],
+    question: json["question"],
+    isActive: json["is_active"],
+    viewResults: json["view_results"] ?? true,
+  );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'author': authorUsername,
-    'question': question,
-    'is_active': isActive,
-    'choices': choices.map((choice) => choice.toJson()).toList(),
-  };
-}
-
-class Choice {
-  final String id;
-  final String pollId;
-  final String choiceText;
-  final int voteCount;
-
-  Choice({
-    required this.id,
-    required this.pollId,
-    required this.choiceText,
-    required this.voteCount,
-  });
-
-  factory Choice.fromJson(Map<String, dynamic> json) {
-    return Choice(
-      id: json['id'] ?? const Uuid().v4(),
-      pollId: json['poll'] ?? '',
-      choiceText: json['choice_text'] ?? '',
-      voteCount: json['vote_count'] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'poll': pollId,
-    'choice_text': choiceText,
-    'vote_count': voteCount,
+    "id": id,
+    "author": author,
+    "question": question,
+    "is_active": isActive,
+    "view_results": viewResults,
   };
 }
