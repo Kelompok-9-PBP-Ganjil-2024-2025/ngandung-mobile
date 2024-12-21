@@ -75,7 +75,7 @@ class _TokoPageState extends State<TokoPage> {
                         'Rating Rumah Makan',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 24,
                         ),
