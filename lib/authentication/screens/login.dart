@@ -1,30 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart';
 import 'package:ngandung_mobile/authentication/screens/register.dart';
-
-void main() {
-  runApp(const LoginApp());
-}
-
-class LoginApp extends StatelessWidget {
-  const LoginApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Login',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.deepPurple,
-        ).copyWith(secondary: Colors.deepPurple[400]),
-      ),
-      home: const LoginPage(),
-    );
-  }
-}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -112,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const HomePage()), //TODO: Diganti apa cok(?)
+                                    const HomeScreen()), //TODO: diganti ya nnti
                           );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()

@@ -1,37 +1,49 @@
-// lib/widget/navbar.dart
-
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:ngandung_mobile/favorite/screens/favorite_list.dart'; // Import FavoriteListPage
-import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart'; // Import HomePage
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final int? currentIndex; // Make it nullable
+  const BottomNavBar({super.key, this.currentIndex});
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+  late int? _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.currentIndex;
+  }
+
+  @override
+  void didUpdateWidget(BottomNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      _selectedIndex = widget.currentIndex;
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-
-      // Navigasi berdasarkan index
-      if (index == 0) {
-        // Jika tombol Home dipilih
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      } else if (index == 3) {
-        // Jika tombol Favourite dipilih
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FavoriteListPage()),
-        );
+      //TODO: Add navigation logic here
+      switch (index) {
+        case 0:
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ),
+              (route) => false);
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
       }
     });
   }
@@ -43,7 +55,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
         child: GNav(
-          selectedIndex: _selectedIndex,
+          selectedIndex:
+              _selectedIndex ?? -1, // -1 ketika tidak ada tab yang diselect
           onTabChange: _onItemTapped,
           backgroundColor: Colors.black,
           color: Colors.white,
