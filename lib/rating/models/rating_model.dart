@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-// final rating = ratingFromJson(jsonString);
-
 import 'dart:convert';
 
 List<Rating> ratingFromJson(String str) =>
