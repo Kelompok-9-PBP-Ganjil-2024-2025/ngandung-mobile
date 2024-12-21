@@ -1,17 +1,31 @@
 // forum_screen.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'models/forum_model.dart';
-import 'models/comment_model.dart';
+import 'discussion_page.dart';
 import 'add_forum.dart';
 
-class ForumScreen extends StatelessWidget {
+class ForumScreen extends StatefulWidget {
   const ForumScreen({super.key});
+
+  @override
+  State<ForumScreen> createState() => _ForumScreenState();
+}
+
+class _ForumScreenState extends State<ForumScreen> {
+  late Future<List<Forum>> _forumsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _forumsFuture = fetchForums();
+  }
 
   // Function to fetch data from API
   Future<List<Forum>> fetchForums() async {
-    final response =
-        await http.get(Uri.parse('http://127.0.0.1:8000/api/forum'));
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/forum'));
 
     if (response.statusCode == 200) {
       // If request is successful, parse JSON data into Forum objects
@@ -19,6 +33,13 @@ class ForumScreen extends StatelessWidget {
     } else {
       throw Exception('Failed to load forums');
     }
+  }
+
+  // Function to refresh forums
+  void _refreshForums() {
+    setState(() {
+      _forumsFuture = fetchForums();
+    });
   }
 
   @override
@@ -36,7 +57,7 @@ class ForumScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: FutureBuilder<List<Forum>>(
-        future: fetchForums(), // Call the fetchForums function
+        future: _forumsFuture, // Call the fetchForums function
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading spinner while data is loading
@@ -54,8 +75,7 @@ class ForumScreen extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    border:
-                        Border.all(color: const Color(0xFFFF9900), width: 2),
+                    border: Border.all(color: const Color(0xFFFF9900), width: 2),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -67,8 +87,7 @@ class ForumScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 15),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                     title: Text(
                       forums[index].fields.title,
                       style: const TextStyle(
@@ -92,8 +111,7 @@ class ForumScreen extends StatelessWidget {
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.calendar_today,
-                            size: 16, color: Color(0xFF999999)),
+                        const Icon(Icons.calendar_today, size: 16, color: Color(0xFF999999)),
                         const SizedBox(height: 4),
                         Text(
                           _formatDate(forums[index].fields.lastUpdated),
@@ -109,10 +127,14 @@ class ForumScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              DiscussionPage(forum: forums[index]),
+                          builder: (context) => DiscussionPage(forum: forums[index]),
                         ),
-                      );
+                      ).then((value) {
+                        if (value == true) {
+                          // Refresh the forums list if a forum was deleted
+                          _refreshForums();
+                        }
+                      });
                     },
                   ),
                 );
@@ -130,7 +152,12 @@ class ForumScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddForumForm()),
-          );
+          ).then((value) {
+            if (value == true) {
+              // Refresh the forums list if a new forum was added
+              _refreshForums();
+            }
+          });
         },
         label: const Text(
           'Add Forum',
@@ -149,116 +176,5 @@ class ForumScreen extends StatelessWidget {
   // Helper function to format the date
   String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
-  }
-}
-
-// Placeholder for DiscussionPage, implement as needed
-class DiscussionPage extends StatefulWidget {
-  final Forum forum;
-
-  const DiscussionPage({Key? key, required this.forum}) : super(key: key);
-
-  @override
-  State<DiscussionPage> createState() => _DiscussionPageState();
-}
-
-class _DiscussionPageState extends State<DiscussionPage> {
-  late Future<List<Comment>> _commentsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    // Memanggil fungsi fetchComments berdasarkan pk (UUID) dari Forum (Discussion)
-    _commentsFuture = fetchComments(widget.forum.pk);
-  }
-
-  // Fungsi untuk GET comments dari endpoint Django
-  Future<List<Comment>> fetchComments(String forumId) async {
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'),
-    );
-    if (response.statusCode == 200) {
-      return commentFromJson(response.body);
-    } else {
-      throw Exception('Failed to load comments');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // AppBar diambil dari versi Anda
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Color(0xFFFF9900), // Warna tombol back
-        ),
-        title: Text(
-          widget.forum.fields.title,
-          style: const TextStyle(
-            color: Color(0xFFFF9900), // Warna teks
-          ),
-        ),
-        backgroundColor: const Color(0xFF111111),
-      ),
-
-      // Di bawah ini kita gunakan Column agar bisa menampilkan:
-      // 1) Konten forum (title + content)
-      // 2) Daftar komentar (FutureBuilder)
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tampilkan konten forum di bagian atas (seperti versi Anda)
-            Text(
-              widget.forum.fields.content,
-              style: const TextStyle(fontSize: 16, color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-
-            // Expanded agar daftar komentar memenuhi sisa ruang di layar
-            Expanded(
-              child: FutureBuilder<List<Comment>>(
-                future: _commentsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Belum ada komentar'));
-                  } else {
-                    // Tampilkan komentar di sini
-                    var comments = snapshot.data!;
-                    return ListView.builder(
-                      itemCount: comments.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          color: Colors.grey[900],
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            title: Text(
-                              comments[index].fields.content,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Text(
-                              'Oleh userId: ${comments[index].fields.user}',
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      // Tambahkan warna latar belakang (opsional)
-      backgroundColor: const Color(0xFF000000),
-    );
   }
 }
