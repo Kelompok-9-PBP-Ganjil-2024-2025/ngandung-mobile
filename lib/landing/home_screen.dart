@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _searchController,
                   onChanged: _filterMakanan,
                   decoration: InputDecoration(
-                    hintText: "Cari makanan favoritmu...",
+                    hintText: "Cari cemilan favoritmu...",
                     filled: true,
                     fillColor: Colors.white,
                     prefixIcon:
