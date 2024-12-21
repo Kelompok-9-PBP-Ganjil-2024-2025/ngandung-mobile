@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -159,7 +160,12 @@ class _MakananFormPageState extends State<MakananFormPage> {
                             const SnackBar(
                                 content: Text("Makanan berhasil ditambahkan")),
                           );
-                          Navigator.pop(context, true);
+                          Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

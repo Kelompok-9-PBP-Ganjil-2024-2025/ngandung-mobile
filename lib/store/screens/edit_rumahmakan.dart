@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -309,7 +310,11 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                                   content:
                                       Text("Rumah Makan berhasil diperbarui")),
                             );
-                            Navigator.pop(context, true);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
