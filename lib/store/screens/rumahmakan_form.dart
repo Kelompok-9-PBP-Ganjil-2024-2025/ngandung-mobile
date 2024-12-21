@@ -273,7 +273,7 @@ class _RumahMakanFormPageState extends State<RumahMakanFormPage> {
                           return;
                         }
                         final response = await request.postJson(
-                          "http://127.0.0.1:8000/add-rumahmakan-flutter/",
+                          "http://127.0.0.1:8000/add-rumahmakan/",
                           jsonEncode(<String, dynamic>{
                             "kode_provinsi": _kodeProv,
                             "nama_provinsi": _namaProv,

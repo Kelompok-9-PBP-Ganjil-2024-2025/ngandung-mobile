@@ -260,8 +260,8 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                     if (value == null || value.isEmpty) {
                       return "Jenis Makanan tidak boleh kosong";
                     }
-                    if (value != 'semua' ||
-                        value != 'berat' ||
+                    if (value != 'semua' &&
+                        value != 'berat' &&
                         value != 'ringan') {
                       return "Cantumkan jenis makanan yang benar!";
                     }
@@ -284,6 +284,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                           );
                           return;
                         }
+                        // print(widget.id);
                         final response = await request.postJson(
                           "http://127.0.0.1:8000/edit-detail-rumahmakan/${widget.id}/",
                           jsonEncode(<String, dynamic>{

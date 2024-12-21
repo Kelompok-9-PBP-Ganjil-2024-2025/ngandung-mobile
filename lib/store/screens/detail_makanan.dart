@@ -130,7 +130,7 @@ class DetailMakananPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditRumahMakanPage(id: id),
+                            builder: (context) => EditRumahMakanPage(id: data['rumah_makan']['id']),
                           ),
                         );
                       },
@@ -151,7 +151,7 @@ class DetailMakananPage extends StatelessWidget {
                 //*===========================================Delete Button===========================================
                     ElevatedButton(
                       onPressed: () {
-                        _showDeleteConfirmation(context, id);
+                        _showDeleteConfirmation(context, data['rumah_makan']['id']);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
