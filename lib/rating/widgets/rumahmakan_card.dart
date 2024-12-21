@@ -4,10 +4,12 @@ import '../screens/rating_view.dart';
 
 class RumahMakanCard extends StatelessWidget {
   final RumahMakan rumahMakan;
+  final VoidCallback? onUpdate; // Add onUpdate callback
 
   const RumahMakanCard({
     super.key,
     required this.rumahMakan,
+    this.onUpdate, // Initialize callback
   });
 
   @override
@@ -20,13 +22,16 @@ class RumahMakanCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0), // Apply the same radius here
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          bool? result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => RatingPage(id: rumahMakan.pk),
             ),
           );
+          if (result == true && onUpdate != null) {
+            onUpdate!(); // Invoke the callback to refresh TokoPage data
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(20.0),

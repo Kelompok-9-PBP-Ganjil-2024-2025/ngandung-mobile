@@ -8,7 +8,7 @@ class RatingCard extends StatelessWidget {
   final String userName;
   final int idRating;
   final int idRumahMakan;
-  final VoidCallback? onUpdate; // Add onUpdate callback
+  final VoidCallback? onUpdate; // Optional callback
 
   const RatingCard({
     super.key,
@@ -16,7 +16,7 @@ class RatingCard extends StatelessWidget {
     required this.userName,
     required this.idRating,
     required this.idRumahMakan,
-    this.onUpdate, // Initialize callback
+    this.onUpdate,
   });
 
   String _formatDate(DateTime date) {
@@ -57,8 +57,8 @@ class RatingCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                bool? result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RatingUpdate(
@@ -68,11 +68,10 @@ class RatingCard extends StatelessWidget {
                       idRumahMakan: idRumahMakan,
                     ),
                   ),
-                ).then((result) {
-                  if (result == true && onUpdate != null) {
-                    onUpdate!(); // Invoke the callback to refresh data
-                  }
-                });
+                );
+                if (result == true && onUpdate != null) {
+                  onUpdate!(); // Invoke the callback to refresh data
+                }
               },
               child: const Text("Update"),
             ),

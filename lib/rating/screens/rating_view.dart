@@ -26,6 +26,7 @@ class RatingWithUser {
 class _RatingPageState extends State<RatingPage> {
   late Future<RumahMakan> _futureRumahMakan;
   late Future<List<RatingWithUser>> _futureRatings;
+  bool _isUpdated = false; // Flag to track updates
 
   @override
   void initState() {
@@ -75,176 +76,184 @@ class _RatingPageState extends State<RatingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder(
-        future: Future.wait([_futureRumahMakan, _futureRatings]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show a loading indicator while fetching data
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            // Display error message if any error occurs
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final results = snapshot.data as List;
-          final rumahMakan = results[0] as RumahMakan;
-          final ratingsWithUsers = results[1] as List<RatingWithUser>;
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _isUpdated); // Return the update flag
+        return false; // Prevent the default pop
+      },
+      child: Scaffold(
+        body: FutureBuilder(
+          future: Future.wait([_futureRumahMakan, _futureRatings]),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // Show a loading indicator while fetching data
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              // Display error message if any error occurs
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            final results = snapshot.data as List;
+            final rumahMakan = results[0] as RumahMakan;
+            final ratingsWithUsers = results[1] as List<RatingWithUser>;
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Container with back button and restaurant title
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.orange[400],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      width: double.infinity,
-                      child: Row(
-                        children: [
-                          // Back Button
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back,
-                                color: Colors.white),
-                            onPressed: () {
-                              // Navigate back when the back button is pressed
-                              Navigator.pop(context);
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          // Restaurant Title
-                          Expanded(
-                            child: Text(
-                              rumahMakan.fields.namaRumahMakan,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Container with back button and restaurant title
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.orange[400],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        width: double.infinity,
+                        child: Row(
+                          children: [
+                            // Back Button
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back,
+                                  color: Colors.white),
+                              onPressed: () {
+                                Navigator.pop(
+                                    context, _isUpdated); // Return flag
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            // Restaurant Title
+                            Expanded(
+                              child: Text(
+                                rumahMakan.fields.namaRumahMakan,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Restaurant Address
+                      Text(
+                        rumahMakan.fields.alamat,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      // Established Year
+                      Text(
+                        'Berdiri tahun ${rumahMakan.fields.tahun}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      // Cuisine Origin
+                      Text(
+                        'Menu makanan asal ${rumahMakan.fields.masakanDariMana == 'semua' ? 'dalam & luar negeri' : rumahMakan.fields.masakanDariMana}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+
+                      // A horizontal line to separate sections
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        child: Divider(
+                          height: 20,
+                          thickness: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+
+                      // Section for average rating + all ratings
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Average Rating: ${rumahMakan.fields.averageRating}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 20),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                            size: 22,
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Restaurant Address
-                    Text(
-                      rumahMakan.fields.alamat,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    // Established Year
-                    Text(
-                      'Berdiri tahun ${rumahMakan.fields.tahun}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    // Cuisine Origin
-                    Text(
-                      'Menu makanan asal ${rumahMakan.fields.masakanDariMana == 'semua' ? 'dalam & luar negeri' : rumahMakan.fields.masakanDariMana}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-
-                    // A horizontal line to separate sections
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Divider(
-                        height: 20,
-                        thickness: 1,
-                        color: Colors.grey,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Reviewed by ${rumahMakan.fields.numberOfRatings}',
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.person,
+                            color: Colors.grey,
+                            size: 14,
+                          ),
+                        ],
                       ),
-                    ),
-
-                    // Section for average rating + all ratings
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Average Rating: ${rumahMakan.fields.averageRating}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 20),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                          size: 22,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Reviewed by ${rumahMakan.fields.numberOfRatings}',
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.person,
-                          color: Colors.grey,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RatingForm(id: widget.id),
-                            ),
-                          ).then((_) {
-                            setState(() {
-                              _futureRatings =
-                                  _fetchRatingsWithUsers(widget.id);
-                              _futureRumahMakan =
-                                  _fetchRumahMakan(widget.id); // Update
-                            });
-                          });
-                        },
-                        child: const Text('Create Review'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // List of user ratings
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: ratingsWithUsers.length,
-                      itemBuilder: (context, index) {
-                        final row = ratingsWithUsers[index];
-                        return RatingCard(
-                          rating: row.rating,
-                          userName: row.userName,
-                          idRating: row.rating.pk,
-                          idRumahMakan: widget.id,
-                          onUpdate: () {
-                            // Provide the callback
-                            setState(() {
-                              _futureRatings =
-                                  _fetchRatingsWithUsers(widget.id);
-                              _futureRumahMakan = _fetchRumahMakan(widget.id);
-                            });
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            bool? result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RatingForm(id: widget.id),
+                              ),
+                            );
+                            if (result == true) {
+                              setState(() {
+                                _futureRatings =
+                                    _fetchRatingsWithUsers(widget.id);
+                                _futureRumahMakan = _fetchRumahMakan(widget.id);
+                                _isUpdated = true;
+                              });
+                            }
                           },
-                        );
-                      },
-                    ),
-                  ],
+                          child: const Text('Create Review'),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // List of user ratings
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: ratingsWithUsers.length,
+                        itemBuilder: (context, index) {
+                          final row = ratingsWithUsers[index];
+                          return RatingCard(
+                            rating: row.rating,
+                            userName: row.userName,
+                            idRating: row.rating.pk,
+                            idRumahMakan: widget.id,
+                            onUpdate: () {
+                              setState(() {
+                                _futureRatings =
+                                    _fetchRatingsWithUsers(widget.id);
+                                _futureRumahMakan = _fetchRumahMakan(widget.id);
+                                _isUpdated =
+                                    true; // Indicate that an update occurred
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

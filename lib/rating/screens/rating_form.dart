@@ -74,7 +74,7 @@ class _RatingFormState extends State<RatingForm> {
                         content: Text("Review berhasil dibuat!"),
                       ),
                     );
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

@@ -112,6 +112,11 @@ class _TokoPageState extends State<TokoPage> {
                           // Build each RumahMakanCard
                           return RumahMakanCard(
                             rumahMakan: rumahMakanList[index],
+                            onUpdate: () {
+                              setState(() {
+                                _futureRumahMakan = fetchRumahMakanData();
+                              });
+                            },
                           );
                         },
                       ),
