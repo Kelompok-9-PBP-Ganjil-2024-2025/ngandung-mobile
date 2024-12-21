@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // Ensure intl is added in pubspec.yaml
 import '../models/rumahmakan_model.dart';
 import '../models/rating_model.dart';
+import './rating_form.dart';
 
 class RatingPage extends StatefulWidget {
   final int id;
@@ -14,9 +15,11 @@ class RatingPage extends StatefulWidget {
 }
 
 // Helper model to store rating + user name
+
 class RatingWithUser {
   final Rating rating;
   final String userName;
+
   RatingWithUser({required this.rating, required this.userName});
 }
 
@@ -191,6 +194,27 @@ class _RatingPageState extends State<RatingPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RatingForm(id: widget.id),
+                            ),
+                          ).then((_) {
+                            setState(() {
+                              _futureRatings =
+                                  _fetchRatingsWithUsers(widget.id);
+                              _futureRumahMakan =
+                                  _fetchRumahMakan(widget.id); // Update
+                            });
+                          });
+                        },
+                        child: const Text('Create Review'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // List of user ratings
                     ListView.builder(
@@ -227,12 +251,10 @@ class _RatingPageState extends State<RatingPage> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 4),
                                 Text(row.rating.fields.review),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _formatDate(
-                                      row.rating.fields.tanggal.toLocal()),
+                                  _formatDate(row.rating.fields.tanggal),
                                   style: const TextStyle(
                                       color: Colors.grey, fontSize: 12),
                                 ),
