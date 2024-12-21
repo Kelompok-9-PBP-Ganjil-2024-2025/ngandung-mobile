@@ -1,7 +1,9 @@
-
 // lib/widget/navbar.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:ngandung_mobile/favorite/screens/favorite_list.dart'; // Import FavoriteListPage
+import 'package:ngandung_mobile/authentication/screens/home_placeholder.dart'; // Import HomePage
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -16,7 +18,21 @@ class _BottomNavBarState extends State<BottomNavBar> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      //TODO:  Nanti add navigation logic ke sini
+
+      // Navigasi berdasarkan index
+      if (index == 0) {
+        // Jika tombol Home dipilih
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else if (index == 3) {
+        // Jika tombol Favourite dipilih
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FavoriteListPage()),
+        );
+      }
     });
   }
 
