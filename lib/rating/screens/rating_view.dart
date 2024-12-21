@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // Ensure intl is added in pubspec.yaml
 import '../models/rumahmakan_model.dart';
 import '../models/rating_model.dart';
 import './rating_form.dart';
+import '../widgets/rating_card.dart';
 
 class RatingPage extends StatefulWidget {
   final int id;
@@ -223,44 +224,11 @@ class _RatingPageState extends State<RatingPage> {
                       itemCount: ratingsWithUsers.length,
                       itemBuilder: (context, index) {
                         final row = ratingsWithUsers[index];
-                        // Generate star icons based on rating value
-                        final stars = List.generate(
-                          row.rating.fields.rating,
-                          (i) => const Icon(Icons.star,
-                              color: Colors.yellow, size: 16),
-                        );
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // User Name
-                                Expanded(
-                                  child: Text(
-                                    row.userName,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                // Star Icons
-                                Row(children: stars),
-                              ],
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(row.rating.fields.review),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _formatDate(row.rating.fields.tanggal),
-                                  style: const TextStyle(
-                                      color: Colors.grey, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return RatingCard(
+                          rating: row.rating,
+                          userName: row.userName,
+                          idRating: row.rating.pk,
+                          idRumahMakan: widget.id,
                         );
                       },
                     ),
