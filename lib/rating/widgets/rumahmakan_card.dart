@@ -12,13 +12,14 @@ class RumahMakanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We only use certain fields for display, but you can customize as needed
     final fields = rumahMakan.fields;
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
           children: [
             Text(
               fields.namaRumahMakan,
@@ -31,14 +32,36 @@ class RumahMakanCard extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
-              'Rating: ${fields.averageRating}',
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Rating: ${fields.averageRating}',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.star,
+                  color: Colors.yellow,
+                  size: 16,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Total Ratings: ${fields.numberOfRatings}',
-              style: const TextStyle(color: Colors.grey),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Reviewed by ${fields.numberOfRatings}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.person,
+                  color: Colors.grey,
+                  size: 16,
+                ),
+              ],
             ),
           ],
         ),
