@@ -302,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     price: makanan.fields.price,
                     id: makanan.pk,
                     onDelete: () =>
-                        _showDeleteConfirmation(context, makanan.pk), 
+                        _showDeleteConfirmation(context, makanan.pk),
                     admin: _isSuperuser,
                   );
                 },

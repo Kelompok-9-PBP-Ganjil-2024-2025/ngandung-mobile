@@ -24,10 +24,8 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   @override
   void initState() {
     super.initState();
-    final req = context.read<CookieRequest>();
-    setState(() {
-      _isSuperuser = req.jsonData['is_superuser'] ?? false;
-    });
+    final request = context.read<CookieRequest>();
+    fetchDetailAndCheckFavorite(request); // Fetch detail dan cek favorit
   }
 
   Future<Map<String, dynamic>> fetchDetail(CookieRequest req, int id) async {
@@ -209,7 +207,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 //*===========================================Detail Rumah Makan===========================================
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -280,29 +278,87 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
                 ),
                 const SizedBox(height: 10),
                 //*===========================================Favorite Button===========================================
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  icon: const Icon(Icons.favorite, color: Colors.white),
-                  label: const Text(
-                    'Tambah ke Favorit',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Fitur favorit belum tersedia'),
-                        duration: Duration(seconds: 2),
+                isLoadingFavorite
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isFavorite ? Colors.orange : Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: Icon(
+                          isFavorite ? Icons.delete : Icons.favorite,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          isFavorite
+                              ? 'Hapus dari Favorit'
+                              : 'Tambah ke Favorit',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          final request = context.read<CookieRequest>();
+                          try {
+                            // Ambil rumah_makan.id dari response API
+                            final rumahMakanId = data['rumah_makan']['id'];
+
+                            if (isFavorite) {
+                              // Hapus dari favorit
+                              await deleteFavorite(request, rumahMakanId);
+                              setState(() {
+                                isFavorite = false;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Restoran berhasil dihapus dari favorit!'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            } else {
+                              // Tambah ke favorit
+                              final response = await request.post(
+                                'http://127.0.0.1:8000/api/user/favorites/add/$rumahMakanId/',
+                                {},
+                              );
+                              if (response['status'] == 'success') {
+                                setState(() {
+                                  isFavorite = true;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Restoran berhasil ditambahkan ke favorit!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } else if (response['status'] == 'exists') {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Restoran sudah ada di favorit.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('Gagal mengubah status favorit: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                       ),
-                    );
-                  },
-                ),
                 const SizedBox(height: 20),
                 //*===========================================List Makanan===========================================
                 const Padding(
@@ -392,6 +448,112 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
         );
       },
     );
+  }
+
+  bool isFavorite = false; // Status favorit
+  bool isLoadingFavorite = true; // Indikator loading favorit
+
+  Future<void> checkIfFavorite(CookieRequest request, int rumahMakanId) async {
+    try {
+      final response =
+          await request.get('http://127.0.0.1:8000/api/user/favorites/');
+      if (response != null && response is List) {
+        setState(() {
+          // Cek apakah rumah_makan.id ada di daftar favorit
+          isFavorite =
+              response.any((fav) => fav['rumah_makan']['id'] == rumahMakanId);
+          isLoadingFavorite = false;
+        });
+      } else {
+        throw Exception('Invalid response format');
+      }
+    } catch (e) {
+      setState(() {
+        isFavorite = false;
+        isLoadingFavorite = false;
+      });
+      print('Error checking favorite status: $e');
+    }
+  }
+
+  Future<void> toggleFavorite(CookieRequest request, int id) async {
+    try {
+      final response = await request.post(
+        'http://127.0.0.1:8000/api/user/favorites/add/$id/',
+        {},
+      );
+      if (response['status'] == 'success') {
+        setState(() {
+          isFavorite = true; // Tambahkan ke favorit
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restoran berhasil ditambahkan ke favorit!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (response['status'] == 'exists') {
+        setState(() {
+          isFavorite = false; // Hapus dari favorit
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restoran dihapus dari favorit!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengubah status favorit: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteFavorite(CookieRequest request, int favoriteId) async {
+    try {
+      final response = await request.post(
+        'http://127.0.0.1:8000/api/user/favorites/$favoriteId/delete/',
+        {}, // Body kosong karena parameter dikirim di URL
+      );
+      if (response['message'] == 'Favorite deleted successfully') {
+        setState(() {
+          isFavorite = false; // Update status menjadi tidak favorit
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restoran berhasil dihapus dari favorit!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        throw Exception(response['message'] ?? 'Gagal menghapus favorit.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus favorit: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> fetchDetailAndCheckFavorite(CookieRequest request) async {
+    try {
+      final response =
+          await request.get('http://127.0.0.1:8000/detail-json/${widget.id}/');
+      final rumahMakanId = response['rumah_makan']
+          ['id']; // Ambil rumah_makan.id dari respons detail
+
+      await checkIfFavorite(
+          request, rumahMakanId); // Panggil fungsi dengan rumahMakanId
+    } catch (e) {
+      print('Error fetching detail or checking favorite: $e');
+    }
   }
 }
 

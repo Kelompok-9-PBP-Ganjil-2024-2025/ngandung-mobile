@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ngandung_mobile/landing/widgets/navbar.dart'; // Import Navbar
+import 'package:ngandung_mobile/landing/home_screen.dart';
+import 'package:ngandung_mobile/store/screens/detail_makanan.dart';
 
 class FavoriteListPage extends StatefulWidget {
   @override
@@ -48,28 +49,40 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   }
 
   // Fungsi untuk menghapus data favorit
-  Future<void> deleteFavorite(CookieRequest request, int favoriteId) async {
+  Future<void> deleteFavorite(CookieRequest request, int rumahMakanId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/api/user/favorites/$favoriteId/delete/',
-        {}, // Data kosong (karena hanya menggunakan metode POST untuk aksi delete)
+        'http://127.0.0.1:8000/api/user/favorites/$rumahMakanId/delete/',
+        {}, // Data kosong karena parameter dikirim di URL
       );
       if (response['message'] == 'Favorite deleted successfully') {
         setState(() {
-          allRestaurants
-              .removeWhere((favorite) => favorite['id'] == favoriteId);
-          filteredRestaurants
-              .removeWhere((favorite) => favorite['id'] == favoriteId);
+          allRestaurants.removeWhere(
+              (favorite) => favorite['rumah_makan']['id'] == rumahMakanId);
+          filteredRestaurants.removeWhere(
+              (favorite) => favorite['rumah_makan']['id'] == rumahMakanId);
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restoran berhasil dihapus dari favorit!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
         throw Exception('Failed to delete favorite');
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus favorit: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
       print('Error deleting favorite: $e');
     }
   }
 
-  // Fungsi untuk filter restoran berdasarkan nama atau lokasi
+  // Fungsi untuk filter restoran berdasarkan nama, kota, atau alamat
   void filterRestaurants(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -82,8 +95,11 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
           final location = restaurant['rumah_makan']['bps_nama_kabupaten_kota']
               .toString()
               .toLowerCase();
+          final address =
+              restaurant['rumah_makan']['alamat'].toString().toLowerCase();
           return name.contains(query.toLowerCase()) ||
-              location.contains(query.toLowerCase());
+              location.contains(query.toLowerCase()) ||
+              address.contains(query.toLowerCase());
         }).toList();
       }
     });
@@ -92,46 +108,58 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFFFE9B12),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      HomeScreen()), // Ganti HomePage dengan nama halaman utama Anda
+              (route) => false,
+            );
+          },
+        ),
+        title: Text(
+          "Restoran Favorit",
+          style: TextStyle(
+            color: Colors.white, // Mengubah warna font menjadi putih
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: isLoading
           ? Center(
               child: CircularProgressIndicator()) // Tampilkan indikator loading
           : Column(
               children: [
-                // Header dengan Background Kuning Lebar
-                Container(
-                  width: double.infinity,
-                  color: Color(0xFFFE9B12),
+                Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Restoran Favorit",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "Restoran favorit kamu disimpan di sini!",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                      vertical: 8.0, horizontal: 16.0),
+                  child: Text(
+                    "Restoran favorit kamu akan ditampilkan di sini!",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: const Color.fromARGB(255, 44, 44, 44),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
+
                 // Search Bar
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    onChanged: filterRestaurants,
+                    onChanged: filterRestaurants, // Fungsi filter restoran Anda
                     decoration: InputDecoration(
                       hintText: "Cari restoran...",
+                      hintStyle: TextStyle(
+                        color: Colors.black.withOpacity(
+                            0.5), // Ubah opacity di sini (0.0 - 1.0)
+                      ),
                       prefixIcon: Icon(Icons.search, color: Color(0xFFFE9B12)),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -151,129 +179,217 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: filteredRestaurants.isEmpty
-                        ? Center(child: Text("Tidak ada restoran favorit."))
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Tidak ada restoran favorit.",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomeScreen()),
+                                      (route) => false,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(
+                                        0xFFFE9B12), // Warna tombol oranye
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "Mulai tambahkan favorit!",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                         : GridView.builder(
                             gridDelegate:
-                                SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                              childAspectRatio: 3 / 4,
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.8,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
                             ),
                             itemCount: filteredRestaurants.length,
                             itemBuilder: (context, index) {
                               final favorite = filteredRestaurants[index];
                               final restaurant = favorite['rumah_makan'];
+                              final relatedFoodId =
+                                  restaurant['makanan_terkait']?['id'];
 
                               return Card(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(
-                                      color: Color(0xFFFE9B12), width: 2),
                                 ),
                                 elevation: 4,
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
+                                child: Stack(
                                   children: [
-                                    // Placeholder untuk gambar restoran
-                                    Expanded(
-                                      flex: 2,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        // Gambar restoran
+                                        AspectRatio(
+                                          aspectRatio: 16 / 9,
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(12)),
+                                            child: Image.network(
+                                              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg',
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.restaurant_menu,
-                                            size: 50,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Informasi restoran
-                                    Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              restaurant['nama_rumah_makan'],
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                                        // Informasi restoran
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                restaurant['nama_rumah_makan'],
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Text(
-                                              restaurant[
-                                                  'bps_nama_kabupaten_kota'],
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 14,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 4.0),
-                                                child: IconButton(
-                                                  icon: Icon(
-                                                    Icons.delete,
-                                                    color: Colors.red,
-                                                  ),
-                                                  onPressed: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          AlertDialog(
-                                                        title: Text(
-                                                            'Konfirmasi Hapus'),
-                                                        content: Text(
-                                                            'Apakah Anda yakin ingin menghapus restoran ini dari favorit?'),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                    context),
-                                                            child:
-                                                                Text('Batal'),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                              deleteFavorite(
-                                                                context.read<
-                                                                    CookieRequest>(),
-                                                                favorite['id'],
-                                                              );
-                                                            },
-                                                            child:
-                                                                Text('Hapus'),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
+                                              SizedBox(height: 4),
+                                              Text(
+                                                restaurant[
+                                                    'bps_nama_kabupaten_kota'],
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 14,
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                              Text(
+                                                restaurant['alamat'],
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
                                         ),
+                                      ],
+                                    ),
+                                    // Tombol hapus dan detail di bagian bawah
+                                    Positioned(
+                                      bottom: 8,
+                                      left: 8,
+                                      right: 8,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Tombol hapus
+                                          GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  title:
+                                                      Text('Konfirmasi Hapus'),
+                                                  content: Text(
+                                                      'Apakah Anda yakin ingin menghapus restoran ini dari favorit?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context),
+                                                      child: Text('Batal'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        Navigator.pop(context);
+                                                        await deleteFavorite(
+                                                          context.read<
+                                                              CookieRequest>(),
+                                                          restaurant['id'],
+                                                        );
+                                                      },
+                                                      child: Text('Hapus'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: 30,
+                                              height: 30,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                Icons.delete,
+                                                color: Colors.white,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                          // Tombol detail
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Color(0xFFFE9B12),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed: relatedFoodId != null
+                                                ? () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            DetailRumahMakanPage(
+                                                          id: relatedFoodId, // Gunakan id makanan
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                : null, // Disable tombol jika tidak ada makanan terkait
+                                            child: Text(
+                                              "Detail",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
@@ -285,7 +401,6 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                 ),
               ],
             ),
-      bottomNavigationBar: BottomNavBar(), // Navbar di sini
     );
   }
 }
