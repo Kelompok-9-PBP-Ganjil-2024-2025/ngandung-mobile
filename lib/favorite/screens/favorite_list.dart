@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:ngandung_mobile/landing/home_screen.dart';
@@ -108,6 +109,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const BottomNavBar(currentIndex: 3),
       appBar: AppBar(
         backgroundColor: Color(0xFFFE9B12),
         leading: IconButton(
