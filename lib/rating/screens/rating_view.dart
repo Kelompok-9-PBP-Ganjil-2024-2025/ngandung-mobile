@@ -1,7 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart'; // Ensure intl is added in pubspec.yaml
 import '../models/rumahmakan_model.dart';
 import '../models/rating_model.dart';
 import './rating_form.dart';
@@ -67,11 +68,6 @@ class _RatingPageState extends State<RatingPage> {
       }
     }
     return combined;
-  }
-
-  String _formatDate(DateTime date) {
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
-    return formatter.format(date);
   }
 
   @override
