@@ -13,7 +13,8 @@ class ForumScreen extends StatefulWidget {
   State<ForumScreen> createState() => _ForumScreenState();
 }
 
-class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStateMixin {
+class _ForumScreenState extends State<ForumScreen>
+    with SingleTickerProviderStateMixin {
   List<Forum> _forums = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -28,7 +29,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
     fetchForums();
     _searchController.addListener(() {
       _onSearchChanged(_searchController.text);
@@ -52,7 +54,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
 
     try {
       // Replace with your actual API endpoint
-      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/forum')); // Update with your IP or use 10.0.2.2 for Android emulator
+      final response = await http.get(Uri.parse(
+          'http://127.0.0.1:8000/api/forum')); // Update with your IP or use 10.0.2.2 for Android emulator
 
       if (response.statusCode == 200) {
         // Parse the JSON data
@@ -64,7 +67,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         });
       } else {
         setState(() {
-          _errorMessage = 'Failed to load forums. Status Code: ${response.statusCode}';
+          _errorMessage =
+              'Failed to load forums. Status Code: ${response.statusCode}';
           _isLoading = false;
         });
       }
@@ -95,7 +99,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
 
     try {
       // Replace with your actual search API endpoint if available
-      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/search-forum/?q=$query')); // Update with your IP or use 10.0.2.2 for Android emulator
+      final response = await http.get(Uri.parse(
+          'http://127.0.0.1:8000/api/search-forum/?q=$query')); // Update with your IP or use 10.0.2.2 for Android emulator
 
       if (response.statusCode == 200) {
         List<Forum> forums = forumFromJson(response.body);
@@ -106,7 +111,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         });
       } else {
         setState(() {
-          _errorMessage = 'Failed to search forums. Status Code: ${response.statusCode}';
+          _errorMessage =
+              'Failed to search forums. Status Code: ${response.statusCode}';
           _isLoading = false;
         });
       }
@@ -124,6 +130,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
       backgroundColor: const Color(0xFFFFF4E5),
       bottomNavigationBar: const BottomNavBar(currentIndex: 4),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: FadeTransition(
           opacity: _fadeAnimation,
           child: const Text(
@@ -271,7 +278,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: const Color(0xFF111111).withOpacity(0.08),
+                                          color: const Color(0xFF111111)
+                                              .withOpacity(0.08),
                                           blurRadius: 15,
                                           offset: const Offset(0, 5),
                                         ),
@@ -285,9 +293,14 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                                           Navigator.push(
                                             context,
                                             PageRouteBuilder(
-                                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                                  DiscussionPage(forum: _forums[index]),
-                                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                              pageBuilder: (context, animation,
+                                                      secondaryAnimation) =>
+                                                  DiscussionPage(
+                                                      forum: _forums[index]),
+                                              transitionsBuilder: (context,
+                                                  animation,
+                                                  secondaryAnimation,
+                                                  child) {
                                                 return FadeTransition(
                                                   opacity: animation,
                                                   child: child,
@@ -295,7 +308,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                                               },
                                             ),
                                           ).then((value) {
-                                            if (value == true || value is Map<String, String>) {
+                                            if (value == true ||
+                                                value is Map<String, String>) {
                                               _refreshForums();
                                             }
                                           });
@@ -303,37 +317,51 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Expanded(
                                                     child: Text(
-                                                      _forums[index].fields.title,
+                                                      _forums[index]
+                                                          .fields
+                                                          .title,
                                                       style: const TextStyle(
                                                         fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Color(0xFF111111),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            Color(0xFF111111),
                                                         letterSpacing: 0.3,
                                                       ),
                                                     ),
                                                   ),
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                       horizontal: 10,
                                                       vertical: 5,
                                                     ),
                                                     decoration: BoxDecoration(
-                                                      color: const Color(0xFFFFF4E5),
-                                                      borderRadius: BorderRadius.circular(12),
+                                                      color: const Color(
+                                                          0xFFFFF4E5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
                                                     ),
                                                     child: Text(
-                                                      _formatDate(_forums[index].fields.lastUpdated),
+                                                      _formatDate(_forums[index]
+                                                          .fields
+                                                          .lastUpdated),
                                                       style: const TextStyle(
                                                         fontSize: 12,
-                                                        color: Color(0xFFFF9900),
-                                                        fontWeight: FontWeight.w500,
+                                                        color:
+                                                            Color(0xFFFF9900),
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                       ),
                                                     ),
                                                   ),
@@ -376,7 +404,8 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         const AddForumForm(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
                       return FadeTransition(
                         opacity: animation,
                         child: child,
