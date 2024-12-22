@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         return request;
       },
       child: MaterialApp(
-          debugShowCheckedModeBanner: false, // Add this line
+          debugShowCheckedModeBanner: false,
           title: 'Ngandung Mobile',
           theme: ThemeData(
             useMaterial3: true,
