@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -19,9 +21,15 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   ];
 
   Future<void> _createPoll(CookieRequest request) async {
+    if (_choicesControllers.length < 2 || _choicesControllers.length > 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Poll must have between 2 and 5 choices.')),
+      );
+      return;
+    }
+
     const url = 'http://127.0.0.1:8000/polling-makanan/create/';
 
-    // Collecting data
     Map<String, dynamic> pollData = {
       'question': _questionController.text,
       'is_active': _isActive.toString(),
@@ -32,32 +40,28 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
     };
 
     try {
-      // Use CookieRequest for authenticated POST request
       final response = await request.post(
         url,
-        jsonEncode(pollData), // Convert the entire payload to a JSON string
+        jsonEncode(pollData),
       );
 
-      // Check response status
       if (response['status'] == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Poll created successfully!')),
         );
         Navigator.pop(context);
       } else {
-        print('Full response: $response');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create poll: ${response['error']}')),
+          SnackBar(
+              content: Text('Failed to create poll: ${response['error']}')),
         );
       }
     } catch (error) {
-      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An error occurred')),
       );
     }
   }
-
 
   @override
   void dispose() {
@@ -74,15 +78,14 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Create Poll'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        title: const Text('Create Poll'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -125,9 +128,18 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                         IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () {
-                            setState(() {
-                              _choicesControllers.removeAt(index);
-                            });
+                            if (_choicesControllers.length > 2) {
+                              setState(() {
+                                _choicesControllers.removeAt(index);
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Poll must have at least 2 choices.'),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],
@@ -137,9 +149,17 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
               ),
               ElevatedButton.icon(
                 onPressed: () {
-                  setState(() {
-                    _choicesControllers.add(TextEditingController());
-                  });
+                  if (_choicesControllers.length < 5) {
+                    setState(() {
+                      _choicesControllers.add(TextEditingController());
+                    });
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Poll cannot have more than 5 choices.')),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Add Choice'),
