@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const HomeScreen()), //TODO: diganti ya nnti
+                                    const HomeScreen()),
                           );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
+                      minimumSize: Size(double.infinity, 50),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),

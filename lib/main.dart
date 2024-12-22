@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/authentication/screens/login.dart';
-// import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
         return request;
       },
       child: MaterialApp(
-          debugShowCheckedModeBanner: false, // Add this line
+          debugShowCheckedModeBanner: false,
           title: 'Ngandung Mobile',
           theme: ThemeData(
             useMaterial3: true,

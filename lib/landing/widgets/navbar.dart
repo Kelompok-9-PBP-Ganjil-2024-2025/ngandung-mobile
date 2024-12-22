@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:ngandung_mobile/poll/screens/polls_screen.dart';
+import 'package:ngandung_mobile/rating/screens/rumahmakan_view.dart';
 import 'package:ngandung_mobile/favorite/screens/favorite_list.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -42,7 +44,21 @@ class _BottomNavBarState extends State<BottomNavBar> {
               (route) => false);
           break;
         case 1:
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TokoPage(),
+              ),
+              (route) => false);
+          break;
         case 2:
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PollsScreen(),
+              ),
+              (route) => false);
+          break;
         case 3:
           Navigator.pushAndRemoveUntil(
               context,
