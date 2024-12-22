@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'models/forum_model.dart';
 import 'discussion_page.dart';
 import 'add_forum.dart';
@@ -121,6 +122,7 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF4E5),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 4),
       appBar: AppBar(
         title: FadeTransition(
           opacity: _fadeAnimation,

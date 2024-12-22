@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/forum/forum_screen.dart';
 import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ngandung_mobile/poll/screens/polls_screen.dart';
@@ -33,7 +34,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      //TODO: Add navigation logic here
       switch (index) {
         case 0:
           Navigator.pushAndRemoveUntil(
@@ -63,11 +63,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => FavoriteListPage(),
+                builder: (context) => const FavoriteListPage(),
               ),
               (route) => false);
           break;
         case 4:
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ForumScreen(),
+              ),
+              (route) => false);
+          break;
       }
     });
   }
