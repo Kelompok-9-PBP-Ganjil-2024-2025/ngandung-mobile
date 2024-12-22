@@ -2,6 +2,8 @@
 
 [![Build status](https://build.appcenter.ms/v0.1/apps/526583f0-e833-4f15-87d7-7a3e3d776530/branches/master/badge)](https://appcenter.ms)
 
+Download here: [Ngandung Mobile](https://install.appcenter.ms/orgs/ngandung-24/apps/ngandung/distribution_groups/public/releases/1)
+
 ### Daftar Isi
 
 1. [Nama-nama anggota kelompok](#1-nama-nama-anggota-kelompok)
