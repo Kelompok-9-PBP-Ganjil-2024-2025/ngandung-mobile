@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -6,6 +8,8 @@ import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:ngandung_mobile/store/screens/detail_makanan.dart';
 
 class FavoriteListPage extends StatefulWidget {
+  const FavoriteListPage({super.key});
+
   @override
   _FavoriteListPageState createState() => _FavoriteListPageState();
 }
@@ -40,7 +44,6 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         throw Exception('Invalid response format');
       }
     } catch (e) {
-      print('Error fetching data: $e');
       setState(() {
         allRestaurants = [];
         filteredRestaurants = [];
@@ -79,7 +82,6 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
           backgroundColor: Colors.red,
         ),
       );
-      print('Error deleting favorite: $e');
     }
   }
 
@@ -111,18 +113,18 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     return Scaffold(
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
       appBar: AppBar(
-        backgroundColor: Color(0xFFFE9B12),
+        backgroundColor: const Color(0xFFFE9B12),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
               (route) => false,
             );
           },
         ),
-        title: Text(
+        title: const Text(
           "Restoran Favorit",
           style: TextStyle(
             color: Colors.white, // Mengubah warna font menjadi putih
@@ -132,18 +134,18 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         ),
       ),
       body: isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator()) // Tampilkan indikator loading
           : Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
+                const Padding(
+                  padding: EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
                   child: Text(
                     "Restoran favorit kamu akan ditampilkan di sini!",
                     style: TextStyle(
                       fontSize: 14,
-                      color: const Color.fromARGB(255, 44, 44, 44),
+                      color: Color.fromARGB(255, 44, 44, 44),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -160,16 +162,16 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                         color: Colors.black.withOpacity(
                             0.5), // Ubah opacity di sini (0.0 - 1.0)
                       ),
-                      prefixIcon: Icon(Icons.search, color: Color(0xFFFE9B12)),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFFFE9B12)),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide:
-                            BorderSide(color: Color(0xFFFE9B12), width: 2),
+                            const BorderSide(color: Color(0xFFFE9B12), width: 2),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide:
-                            BorderSide(color: Color(0xFFFE9B12), width: 2),
+                            const BorderSide(color: Color(0xFFFE9B12), width: 2),
                       ),
                     ),
                   ),
@@ -183,7 +185,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
+                                const Text(
                                   "Tidak ada restoran favorit.",
                                   style: TextStyle(
                                     color: Colors.grey,
@@ -197,12 +199,12 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                     Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => HomeScreen()),
+                                          builder: (context) => const HomeScreen()),
                                       (route) => false,
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(
+                                    backgroundColor: const Color(
                                         0xFFFE9B12), // Warna tombol oranye
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24, vertical: 12),
@@ -210,7 +212,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "Mulai tambahkan favorit!",
                                     style: TextStyle(
                                       color: Colors.white,
@@ -223,7 +225,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                           )
                         : GridView.builder(
                             gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               childAspectRatio: 0.8,
                               crossAxisSpacing: 16,
@@ -251,7 +253,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                         AspectRatio(
                                           aspectRatio: 16 / 9,
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.vertical(
+                                            borderRadius: const BorderRadius.vertical(
                                                 top: Radius.circular(12)),
                                             child: Image.network(
                                               'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/00/d2/8e/flavours-of-china.jpg',
@@ -268,14 +270,14 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                             children: [
                                               Text(
                                                 restaurant['nama_rumah_makan'],
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
                                                 ),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
-                                              SizedBox(height: 4),
+                                              const SizedBox(height: 4),
                                               Text(
                                                 restaurant[
                                                     'bps_nama_kabupaten_kota'],
@@ -315,15 +317,15 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                                 builder: (context) =>
                                                     AlertDialog(
                                                   title:
-                                                      Text('Konfirmasi Hapus'),
-                                                  content: Text(
+                                                      const Text('Konfirmasi Hapus'),
+                                                  content: const Text(
                                                       'Apakah Anda yakin ingin menghapus restoran ini dari favorit?'),
                                                   actions: [
                                                     TextButton(
                                                       onPressed: () =>
                                                           Navigator.pop(
                                                               context),
-                                                      child: Text('Batal'),
+                                                      child: const Text('Batal'),
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
@@ -334,7 +336,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                                           restaurant['id'],
                                                         );
                                                       },
-                                                      child: Text('Hapus'),
+                                                      child: const Text('Hapus'),
                                                     ),
                                                   ],
                                                 ),
@@ -348,7 +350,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(8),
                                               ),
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.delete,
                                                 color: Colors.white,
                                                 size: 18,
@@ -359,7 +361,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                           ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  Color(0xFFFE9B12),
+                                                  const Color(0xFFFE9B12),
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 12,
@@ -390,7 +392,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                                     });
                                                   }
                                                 : null, // Disable tombol jika tidak ada makanan terkait
-                                            child: Text(
+                                            child: const Text(
                                               "Detail",
                                               style: TextStyle(
                                                   color: Colors.white,
