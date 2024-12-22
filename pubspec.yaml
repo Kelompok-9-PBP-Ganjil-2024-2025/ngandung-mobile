@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.2.0
   cupertino_icons: ^1.0.8
   google_nav_bar: ^5.0.7
+  url_launcher: ^6.3.1
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   http: ^1.2.2
