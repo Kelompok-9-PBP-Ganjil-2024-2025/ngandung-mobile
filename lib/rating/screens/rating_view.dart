@@ -38,7 +38,7 @@ class _RatingPageState extends State<RatingPage> {
 
   Future<RumahMakan> _fetchRumahMakan(int id) async {
     final resp =
-        await http.get(Uri.parse('http://127.0.0.1:8000/api/toko/$id/'));
+        await http.get(Uri.parse('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/toko/$id/'));
     if (resp.statusCode == 200) {
       final List data = jsonDecode(resp.body);
       return RumahMakan.fromJson(data[0]);
@@ -50,7 +50,7 @@ class _RatingPageState extends State<RatingPage> {
   Future<List<RatingWithUser>> _fetchRatingsWithUsers(int id) async {
     // 1. Fetch all ratings for this Rumah Makan
     final resp =
-        await http.get(Uri.parse('http://127.0.0.1:8000/api/rating-toko/$id/'));
+        await http.get(Uri.parse('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/rating-toko/$id/'));
     if (resp.statusCode != 200) {
       throw Exception('Failed to load Ratings');
     }
@@ -60,7 +60,7 @@ class _RatingPageState extends State<RatingPage> {
     final List<RatingWithUser> combined = [];
     for (final rating in ratingsList) {
       final userRes = await http.get(
-          Uri.parse('http://127.0.0.1:8000/api/user/${rating.fields.user}/'));
+          Uri.parse('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/${rating.fields.user}/'));
       if (userRes.statusCode == 200) {
         final List userData = jsonDecode(userRes.body);
         final userName = userData[0]["fields"]["username"] ?? "Unknown";

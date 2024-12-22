@@ -35,7 +35,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
 
   Future<void> _loadRumahMakanDetail(CookieRequest req, int id) async {
     try {
-      final response = await req.get('http://127.0.0.1:8000/get-detail-rumahmakan/$id/');
+      final response = await req.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/get-detail-rumahmakan/$id/');
       setState(() {
         _kodeProvController.text = response['kode_provinsi'].toString();
         _namaProvController.text = response['nama_provinsi'];
@@ -307,7 +307,7 @@ class _EditRumahMakanPageState extends State<EditRumahMakanPage> {
                                 return;
                               }
                               final response = await request.postJson(
-                                "http://127.0.0.1:8000/edit-detail-rumahmakan/${widget.id}/",
+                                "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/edit-detail-rumahmakan/${widget.id}/",
                                 jsonEncode(<String, dynamic>{
                                   'kode_provinsi': _kodeProvController.text,
                                   'nama_provinsi': _namaProvController.text,

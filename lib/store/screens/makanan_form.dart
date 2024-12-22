@@ -35,7 +35,7 @@ class _MakananFormPageState extends State<MakananFormPage> {
 
   Future<List<dynamic>> fetchListRumahMakan(CookieRequest req) async {
     try {
-      final response = await req.get('http://127.0.0.1:8000/list-rumahmakan/');
+      final response = await req.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/list-rumahmakan/');
       return response as List<dynamic>;
     } catch (e) {
       throw Exception("Error fetching rumah makan: $e");
@@ -188,7 +188,7 @@ class _MakananFormPageState extends State<MakananFormPage> {
                                 return;
                               }
                               final response = await request.postJson(
-                                "http://127.0.0.1:8000/add-makanan-flutter/",
+                                "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/add-makanan-flutter/",
                                 jsonEncode(<String, dynamic>{
                                   "name": _nama,
                                   "price": _harga,

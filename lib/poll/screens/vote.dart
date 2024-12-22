@@ -24,7 +24,7 @@ class _VoteScreenState extends State<VoteScreen> {
 
   Future<void> fetchPollData(CookieRequest request) async {
     final response = await request.get(
-      'http://127.0.0.1:8000/polling-makanan/vote/${widget.pollId}/',
+      'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/vote/${widget.pollId}/',
     );
 
     if (response['status'] == 'success') {
@@ -44,7 +44,7 @@ class _VoteScreenState extends State<VoteScreen> {
 
   Future<void> submitVote(CookieRequest request, String choiceId) async {
     final response = await request.post(
-      'http://127.0.0.1:8000/polling-makanan/vote/${widget.pollId}/',
+      'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/vote/${widget.pollId}/',
       jsonEncode({  // Encode the data as JSON
         'choice': choiceId
       }),

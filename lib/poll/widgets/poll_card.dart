@@ -43,7 +43,7 @@ class _PollCardState extends State<PollCard> {
 
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/polling-makanan/delete/${widget.pk}/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/delete/${widget.pk}/',
         data,
       );
 
@@ -75,7 +75,7 @@ class _PollCardState extends State<PollCard> {
   Future<void> _togglePollStatus(CookieRequest request, BuildContext context) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/polling-makanan/update/${widget.pk}/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/update/${widget.pk}/',
         {},
       );
 

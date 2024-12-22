@@ -29,7 +29,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   }
 
   Future<Map<String, dynamic>> fetchDetail(CookieRequest req, int id) async {
-    final response = await req.get('http://127.0.0.1:8000/detail-json/$id/');
+    final response = await req.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/detail-json/$id/');
 
     return response;
   }
@@ -50,7 +50,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request
-          .post('http://127.0.0.1:8000/delete-rumahmakan-flutter/$id/', {
+          .post('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/delete-rumahmakan-flutter/$id/', {
         'id': id.toString(),
       });
 
@@ -332,7 +332,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
                             } else {
                               // Tambah ke favorit
                               final response = await request.post(
-                                'http://127.0.0.1:8000/api/user/favorites/add/$rumahMakanId/',
+                                'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/add/$rumahMakanId/',
                                 {},
                               );
                               if (response['status'] == 'success') {
@@ -464,7 +464,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   Future<void> checkIfFavorite(CookieRequest request, int rumahMakanId) async {
     try {
       final response =
-          await request.get('http://127.0.0.1:8000/api/user/favorites/');
+          await request.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/');
       if (response != null && response is List) {
         setState(() {
           // Cek apakah rumah_makan.id ada di daftar favorit
@@ -487,7 +487,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   Future<void> toggleFavorite(CookieRequest request, int id) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/api/user/favorites/add/$id/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/add/$id/',
         {},
       );
       if (response['status'] == 'success') {
@@ -524,7 +524,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   Future<void> deleteFavorite(CookieRequest request, int favoriteId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/api/user/favorites/$favoriteId/delete/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/$favoriteId/delete/',
         {}, // Body kosong karena parameter dikirim di URL
       );
       if (response['message'] == 'Favorite deleted successfully') {
@@ -553,7 +553,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
   Future<void> fetchDetailAndCheckFavorite(CookieRequest request) async {
     try {
       final response =
-          await request.get('http://127.0.0.1:8000/detail-json/${widget.id}/');
+          await request.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/detail-json/${widget.id}/');
       final rumahMakanId = response['rumah_makan']
           ['id']; // Ambil rumah_makan.id dari respons detail
 

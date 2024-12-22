@@ -28,7 +28,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
       return;
     }
 
-    const url = 'http://127.0.0.1:8000/polling-makanan/create/';
+    const url = 'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/create/';
 
     Map<String, dynamic> pollData = {
       'question': _questionController.text,

@@ -131,7 +131,7 @@ class RatingCard extends StatelessWidget {
 
                       if (shouldDelete == true) {
                         final response = await request.postJson(
-                          "http://127.0.0.1:8000/api/rating-toko/delete-flutter/",
+                          "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/rating-toko/delete-flutter/",
                           jsonEncode({
                             'id_rating': idRating,
                             'id_rumah_makan': idRumahMakan,

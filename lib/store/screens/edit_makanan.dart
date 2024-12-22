@@ -40,7 +40,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
 
   Future<void> _loadMakananDetail(CookieRequest req, int id) async {
     try {
-      final response = await req.get('http://127.0.0.1:8000/get-detail-makanan/$id/');
+      final response = await req.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/get-detail-makanan/$id/');
       setState(() {
         _namaController.text = response['name'];
         _hargaController.text = response['price'].toString();
@@ -58,7 +58,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
 
   Future<List<dynamic>> fetchListRumahMakan(CookieRequest req) async {
     try {
-      final response = await req.get('http://127.0.0.1:8000/list-rumahmakan/');
+      final response = await req.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/list-rumahmakan/');
       return response as List<dynamic>;
     } catch (e) {
       throw Exception("Error fetching rumah makan: $e");
@@ -207,7 +207,7 @@ class _EditMakananPageState extends State<EditMakananPage> {
                                 return;
                               }
                               final response = await request.postJson(
-                                "http://127.0.0.1:8000/edit-detail-makanan/${widget.id}/",
+                                "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/edit-detail-makanan/${widget.id}/",
                                 jsonEncode(<String, dynamic>{
                                   "name": _namaController.text,
                                   "price": int.parse(_hargaController.text),

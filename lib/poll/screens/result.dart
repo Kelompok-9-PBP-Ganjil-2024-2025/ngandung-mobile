@@ -12,7 +12,7 @@ class PollResultScreen extends StatelessWidget {
   Future<Poll> fetchPollResults(CookieRequest request, String pollId) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/polling-makanan/polls/$pollId/results/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/polls/$pollId/results/',
       );
 
       // Check if response is a String or Map and handle accordingly

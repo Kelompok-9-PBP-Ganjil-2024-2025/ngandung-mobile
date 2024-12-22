@@ -55,7 +55,7 @@ class _ForumScreenState extends State<ForumScreen>
     try {
       // Replace with your actual API endpoint
       final response = await http.get(Uri.parse(
-          'http://127.0.0.1:8000/api/forum'));
+          'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/forum'));
 
       if (response.statusCode == 200) {
         // Parse the JSON data
@@ -100,7 +100,7 @@ class _ForumScreenState extends State<ForumScreen>
     try {
       // Replace with your actual search API endpoint if available
       final response = await http.get(Uri.parse(
-          'http://127.0.0.1:8000/api/search-forum/?q=$query')); // Update with your IP or use 10.0.2.2 for Android emulator
+          'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/search-forum/?q=$query')); // Update with your IP or use 10.0.2.2 for Android emulator
 
       if (response.statusCode == 200) {
         List<Forum> forums = forumFromJson(response.body);

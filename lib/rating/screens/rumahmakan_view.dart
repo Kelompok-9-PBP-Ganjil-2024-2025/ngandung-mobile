@@ -24,7 +24,7 @@ class _TokoPageState extends State<TokoPage> {
 
   // Function to fetch data from the API
   Future<List<RumahMakan>> fetchRumahMakanData() async {
-    final url = Uri.parse('http://127.0.0.1:8000/api/toko/');
+    final url = Uri.parse('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/toko/');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

@@ -96,7 +96,7 @@ class _AddForumFormState extends State<AddForumForm> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final response = await request.postJson(
-                          "http://127.0.0.1:8000/create-forum-flutter/",
+                          "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/create-forum-flutter/",
                           jsonEncode(<String, String>{
                             'title': _title,
                             'content': _content,

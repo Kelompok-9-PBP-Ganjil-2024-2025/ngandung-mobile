@@ -17,7 +17,7 @@ class _LogoutButtonState extends State<LogoutButton> {
 
   void _logout(BuildContext context) async {
     final req = context.read<CookieRequest>();
-    final response = await req.logout("http://127.0.0.1:8000/auth/logout/");
+    final response = await req.logout("http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/auth/logout/");
     String message = response["message"];
     if (context.mounted) {
       if (response['status']) {

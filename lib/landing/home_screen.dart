@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSuperuser = false;
 
   Future<List<Makanan>> fetchMakanan(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/makanan-json/');
+    final response = await request.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/makanan-json/');
 
     List<Makanan> listMakanan = [];
     for (var d in response) {
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request
-          .post('http://127.0.0.1:8000/delete-makanan-flutter/$id/', {
+          .post('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/delete-makanan-flutter/$id/', {
         'id': id.toString(),
       });
 

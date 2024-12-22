@@ -21,7 +21,7 @@ class _PollsScreenState extends State<PollsScreen> {
   Future<List<Poll>> fetchPolls(CookieRequest request) async {
     try {
       final response =
-      await request.get('http://127.0.0.1:8000/polling-makanan/polls/');
+      await request.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/polling-makanan/polls/');
 
       List<dynamic> data = response is String ? jsonDecode(response) : response;
 

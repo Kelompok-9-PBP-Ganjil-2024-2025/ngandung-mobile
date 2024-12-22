@@ -33,7 +33,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   Future<void> fetchFavorites(CookieRequest request) async {
     try {
       final response =
-          await request.get('http://127.0.0.1:8000/api/user/favorites/');
+          await request.get('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/');
       if (response != null && response is List) {
         setState(() {
           allRestaurants = response; // Simpan semua data
@@ -56,7 +56,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   Future<void> deleteFavorite(CookieRequest request, int rumahMakanId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/api/user/favorites/$rumahMakanId/delete/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/user/favorites/$rumahMakanId/delete/',
         {}, // Data kosong karena parameter dikirim di URL
       );
       if (response['message'] == 'Favorite deleted successfully') {

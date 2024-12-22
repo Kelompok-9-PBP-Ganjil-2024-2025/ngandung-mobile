@@ -38,7 +38,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   /// 1. Mendapatkan user.id dari endpoint Django /api/current-user/
   Future<void> _fetchCurrentUserId() async {
     final request = context.read<CookieRequest>();
-    const url = 'http://127.0.0.1:8000/api/current-user/';
+    const url = 'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/current-user/';
     try {
       final response = await request.get(url);
       if (response['status'] == 'success') {
@@ -54,7 +54,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   /// 2. Fungsi GET komentar dari API
   Future<List<Comment>> fetchComments(String forumId) async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'),
+      Uri.parse('http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/discussion/$forumId/comments/'),
     );
     if (response.statusCode == 200) {
       return commentFromJson(response.body);
@@ -67,7 +67,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Future<void> addComment(String content) async {
     final request = context.read<CookieRequest>();
     final url = Uri.parse(
-      'http://127.0.0.1:8000/api/discussion/${currentForum.pk}/add_comment/',
+      'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/discussion/${currentForum.pk}/add_comment/',
     );
 
     final response = await request.post(url.toString(), {
@@ -98,7 +98,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Future<void> likeComment(String commentId) async {
     final request = context.read<CookieRequest>();
     final url = Uri.parse(
-      'http://127.0.0.1:8000/api/discussion/comments/$commentId/like/',
+      'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/discussion/comments/$commentId/like/',
     );
 
     final response = await request.post(url.toString(), {});
@@ -122,7 +122,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Future<void> deleteComment(String commentId) async {
     final request = context.read<CookieRequest>();
     final url = Uri.parse(
-      'http://127.0.0.1:8000/api/discussion/comments/$commentId/delete/',
+      'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/discussion/comments/$commentId/delete/',
     );
 
     final response = await request.post(url.toString(), {});
@@ -151,7 +151,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Future<void> forumDelete(CookieRequest request) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/delete-forum-flutter/${currentForum.pk}/',
+        'http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/delete-forum-flutter/${currentForum.pk}/',
         {},
       );
 

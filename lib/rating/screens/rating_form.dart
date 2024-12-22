@@ -68,7 +68,7 @@ class _RatingFormState extends State<RatingForm> {
               onPressed: () async {
                 if (_rating > 0 && _reviewController.text.isNotEmpty) {
                   final response = await request.postJson(
-                    "http://127.0.0.1:8000/api/rating-toko/add-flutter/",
+                    "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/api/rating-toko/add-flutter/",
                     jsonEncode(<String, dynamic>{
                       'rating': _rating,
                       'review': _reviewController.text,

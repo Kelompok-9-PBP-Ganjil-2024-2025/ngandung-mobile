@@ -34,7 +34,7 @@ class _EditForumPageState extends State<EditForumPage> {
 
       try {
         final response = await request.postJson(
-          "http://127.0.0.1:8000/edit-forum-flutter/${widget.forum.pk}/",
+          "http://daffa-abhipraya-ngandung.pbp.cs.ui.ac.id/edit-forum-flutter/${widget.forum.pk}/",
           jsonEncode(<String, String>{
             'title': _title,
             'content': _content,
