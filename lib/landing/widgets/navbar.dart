@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/landing/home_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:ngandung_mobile/favorite/screens/favorite_list.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int? currentIndex; // Make it nullable
@@ -43,6 +44,13 @@ class _BottomNavBarState extends State<BottomNavBar> {
         case 1:
         case 2:
         case 3:
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FavoriteListPage(),
+              ),
+              (route) => false);
+          break;
         case 4:
       }
     });
