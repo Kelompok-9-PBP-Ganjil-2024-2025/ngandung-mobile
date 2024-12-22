@@ -40,7 +40,7 @@ class _EditForumPageState extends State<EditForumPage> {
         );
 
         if (response['status'] == 'success') {
-          // Kembalikan data yang diupdate ke DiscussionPage, termasuk 'pk'
+          // Kembalikan data yang diupdate ke DiscussionPage
           Navigator.pop(context, {
             'pk': widget.forum.pk,
             'title': _title,

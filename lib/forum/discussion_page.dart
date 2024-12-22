@@ -7,7 +7,7 @@ import 'edit_forum.dart';
 import 'package:http/http.dart' as http;
 
 /// Halaman diskusi forum, menampilkan daftar komentar.
-/// Terdapat fitur: tambah komentar, hapus komentar, like/unlike komentar, dan sorting komentar by likes.
+/// Hanya pembuat forum atau Admin (ID == 1) yang dapat mengedit/hapus forum.
 class DiscussionPage extends StatefulWidget {
   final Forum forum;
 
@@ -23,7 +23,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
 
   final TextEditingController _commentController = TextEditingController();
 
-  /// Menyimpan ID user yang sedang login (agar bisa cek apakah sudah like komentar).
+  /// Menyimpan ID user yang sedang login (agar bisa cek apakah sudah like komentar, dll).
   int _currentUserId = -1;
 
   @override
@@ -37,7 +37,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   /// Fungsi untuk mengambil user.id dari endpoint Django:
   Future<void> _fetchCurrentUserId() async {
     final request = context.read<CookieRequest>();
-    final url = 'http://127.0.0.1:8000/api/current-user/'; 
+    final url = 'http://127.0.0.1:8000/api/current-user/';
     try {
       final response = await request.get(url);
       if (response['status'] == 'success') {
@@ -74,7 +74,6 @@ class _DiscussionPageState extends State<DiscussionPage> {
       url.toString(),
       {
         "content": content,
-        // "parent": "UUID-komentar-atasan jika diperlukan"
       },
     );
 
@@ -134,13 +133,11 @@ class _DiscussionPageState extends State<DiscussionPage> {
       'http://127.0.0.1:8000/api/discussion/comments/$commentId/like/',
     );
 
-    // Endpoint Django hanya butuh POST tanpa body
     final response = await request.post(url.toString(), {});
 
-    // contoh respon: { "status": "success", "liked": bool, "total_likes": int }
     if (response['status'] == 'success') {
       setState(() {
-        // Setelah sukses like/unlike, refresh list komentar agar tampilan terupdate
+        // Reload komentar agar total likes terupdate
         _commentsFuture = fetchComments(currentForum.pk);
       });
     } else {
@@ -207,8 +204,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
             backgroundColor: Colors.green,
           ),
         );
-        // Kembalikan ke halaman sebelumnya (ForumScreen), dengan status refresh
-        Navigator.pop(context, true);
+        Navigator.pop(context, true); // Kembali ke halaman sebelumnya
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -231,6 +227,37 @@ class _DiscussionPageState extends State<DiscussionPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
+    // Pastikan forum tidak kosong (title & content)
+    if (currentForum.fields.title.trim().isEmpty &&
+        currentForum.fields.content.trim().isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF000000),
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Color(0xFFFF9900)),
+          backgroundColor: const Color(0xFF111111),
+          title: const Text(
+            "Forum Kosong",
+            style: TextStyle(color: Color(0xFFFF9900)),
+          ),
+        ),
+        body: const Center(
+          child: Text(
+            'Belum ada forum yang dibuat, ayo buat forum!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xFFFF9900),
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Cek apakah user saat ini adalah pemilik forum atau admin (id = 1)
+    final forumOwnerId = currentForum.fields.user; // ID pembuat forum
+    final isForumOwnerOrAdmin =
+        (forumOwnerId == _currentUserId) || (_currentUserId == 1);
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -241,60 +268,61 @@ class _DiscussionPageState extends State<DiscussionPage> {
           style: const TextStyle(color: Color(0xFFFF9900)),
         ),
         backgroundColor: const Color(0xFF111111),
+        // Tampilkan tombol Edit & Delete *hanya* jika isForumOwnerOrAdmin == true
         actions: [
-          // Tombol Edit Forum
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.blue),
-            onPressed: () {
-              // Navigasi ke halaman EditForumPage dengan data forum
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditForumPage(forum: currentForum),
-                ),
-              ).then((value) {
-                if (value != null && value is Map<String, String>) {
-                  setState(() {
-                    // Update currentForum dengan data yang diubah
-                    currentForum.fields.title =
-                        value['title'] ?? currentForum.fields.title;
-                    currentForum.fields.content =
-                        value['content'] ?? currentForum.fields.content;
-                  });
-                  // Kembalikan data yang diupdate ke ForumScreen
-                  Navigator.pop(context, value);
-                }
-              });
-            },
-          ),
-          // Tombol Delete Forum
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () async {
-              // Konfirmasi sebelum menghapus
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Konfirmasi Hapus'),
-                  content: const Text('Yakin ingin menghapus forum ini?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Batal'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Hapus'),
-                    ),
-                  ],
-                ),
-              );
+          if (isForumOwnerOrAdmin) ...[
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              onPressed: () {
+                // Navigasi ke halaman EditForumPage dengan data forum
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditForumPage(forum: currentForum),
+                  ),
+                ).then((value) {
+                  if (value != null && value is Map<String, String>) {
+                    setState(() {
+                      // Update currentForum dengan data yang diubah
+                      currentForum.fields.title =
+                          value['title'] ?? currentForum.fields.title;
+                      currentForum.fields.content =
+                          value['content'] ?? currentForum.fields.content;
+                    });
+                    // Kembalikan data yang diupdate ke ForumScreen
+                    Navigator.pop(context, value);
+                  }
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () async {
+                // Konfirmasi sebelum menghapus
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Konfirmasi Hapus'),
+                    content: const Text('Yakin ingin menghapus forum ini?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Batal'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Hapus'),
+                      ),
+                    ],
+                  ),
+                );
 
-              if (confirm == true) {
-                await forumDelete(request);
-              }
-            },
-          ),
+                if (confirm == true) {
+                  await forumDelete(request);
+                }
+              },
+            ),
+          ],
         ],
       ),
       // Konten
@@ -320,7 +348,17 @@ class _DiscussionPageState extends State<DiscussionPage> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Belum ada komentar'));
+                    // TULISAN “Belum ada komentar” di tengah dengan warna #FF9900
+                    return const Center(
+                      child: Text(
+                        'Belum ada komentar',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFFFF9900),
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
                   } else {
                     final comments = snapshot.data!;
                     // Tampilkan komentar
@@ -351,15 +389,18 @@ class _DiscussionPageState extends State<DiscussionPage> {
                               children: [
                                 // Tombol Hapus Komentar
                                 IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
                                   onPressed: () async {
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (ctx) => AlertDialog(
                                         title: const Text('Konfirmasi Hapus'),
                                         content: const Text(
-                                            'Yakin ingin menghapus komentar ini?'),
+                                          'Yakin ingin menghapus komentar ini?',
+                                        ),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
