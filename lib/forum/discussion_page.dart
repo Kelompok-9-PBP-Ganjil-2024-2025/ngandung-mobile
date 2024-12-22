@@ -1,12 +1,13 @@
-// discussion_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'models/forum_model.dart';
 import 'models/comment_model.dart';
-import 'edit_forum.dart'; // Pastikan untuk mengimpor halaman edit_forum.dart
+import 'edit_forum.dart';
 import 'package:http/http.dart' as http;
 
+/// Halaman diskusi forum, menampilkan daftar komentar.
+/// Terdapat fitur: tambah komentar, hapus komentar, like/unlike komentar, dan sorting komentar by likes.
 class DiscussionPage extends StatefulWidget {
   final Forum forum;
 
@@ -19,19 +20,41 @@ class DiscussionPage extends StatefulWidget {
 class _DiscussionPageState extends State<DiscussionPage> {
   late Future<List<Comment>> _commentsFuture;
   late Forum currentForum;
+
   final TextEditingController _commentController = TextEditingController();
+
+  /// Menyimpan ID user yang sedang login (agar bisa cek apakah sudah like komentar).
+  int _currentUserId = -1;
 
   @override
   void initState() {
     super.initState();
     currentForum = widget.forum;
     _commentsFuture = fetchComments(currentForum.pk);
+    _fetchCurrentUserId(); // Ambil user.id dari endpoint Django
   }
 
-  // Fungsi untuk GET comments dari endpoint Django
+  /// Fungsi untuk mengambil user.id dari endpoint Django:
+  Future<void> _fetchCurrentUserId() async {
+    final request = context.read<CookieRequest>();
+    final url = 'http://127.0.0.1:8000/api/current-user/'; 
+    try {
+      final response = await request.get(url);
+      if (response['status'] == 'success') {
+        setState(() {
+          // Simpan user.id di _currentUserId
+          _currentUserId = response['user']['id'];
+        });
+      }
+    } catch (e) {
+      // Jika error, biarkan saja _currentUserId = -1
+    }
+  }
+
+  /// Fungsi untuk GET komentar dari endpoint Django
   Future<List<Comment>> fetchComments(String forumId) async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'), // Pastikan URL ini benar
+      Uri.parse('http://127.0.0.1:8000/api/discussion/$forumId/comments/'),
     );
     if (response.statusCode == 200) {
       return commentFromJson(response.body);
@@ -40,16 +63,18 @@ class _DiscussionPageState extends State<DiscussionPage> {
     }
   }
 
-  // Fungsi untuk POST comment ke API
+  /// Fungsi untuk menambah komentar (POST ke endpoint Django)
   Future<void> addComment(String content) async {
     final request = context.read<CookieRequest>();
-    final url = Uri.parse('http://127.0.0.1:8000/api/discussion/${currentForum.pk}/add_comment/');
+    final url = Uri.parse(
+      'http://127.0.0.1:8000/api/discussion/${currentForum.pk}/add_comment/',
+    );
 
     final response = await request.post(
       url.toString(),
       {
         "content": content,
-        // "parent": "UUID-komentar-atasan jika diperlukan" // Tambahkan jika diperlukan
+        // "parent": "UUID-komentar-atasan jika diperlukan"
       },
     );
 
@@ -73,15 +98,14 @@ class _DiscussionPageState extends State<DiscussionPage> {
     }
   }
 
-  // Fungsi untuk DELETE comment ke API
+  /// Fungsi untuk menghapus komentar (DELETE ke endpoint Django)
   Future<void> deleteComment(String commentId) async {
     final request = context.read<CookieRequest>();
-    final url = Uri.parse('http://127.0.0.1:8000/api/discussion/comments/$commentId/delete/');
-
-    final response = await request.post(
-      url.toString(),
-      {}, // Payload kosong karena API hanya membutuhkan comment_id dari URL
+    final url = Uri.parse(
+      'http://127.0.0.1:8000/api/discussion/comments/$commentId/delete/',
     );
+
+    final response = await request.post(url.toString(), {});
 
     if (response['status'] == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +127,33 @@ class _DiscussionPageState extends State<DiscussionPage> {
     }
   }
 
-  // Fungsi untuk menampilkan dialog Add Comment
+  /// Fungsi untuk men–like/unlike komentar
+  Future<void> likeComment(String commentId) async {
+    final request = context.read<CookieRequest>();
+    final url = Uri.parse(
+      'http://127.0.0.1:8000/api/discussion/comments/$commentId/like/',
+    );
+
+    // Endpoint Django hanya butuh POST tanpa body
+    final response = await request.post(url.toString(), {});
+
+    // contoh respon: { "status": "success", "liked": bool, "total_likes": int }
+    if (response['status'] == 'success') {
+      setState(() {
+        // Setelah sukses like/unlike, refresh list komentar agar tampilan terupdate
+        _commentsFuture = fetchComments(currentForum.pk);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message'] ?? 'Gagal mem–like komentar'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Menampilkan dialog Add Comment
   void _showAddCommentDialog() {
     showDialog(
       context: context,
@@ -142,7 +192,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
     );
   }
 
-  // Fungsi untuk DELETE forum
+  /// Fungsi untuk menghapus forum
   Future<void> forumDelete(CookieRequest request) async {
     try {
       final response = await request.post(
@@ -157,7 +207,8 @@ class _DiscussionPageState extends State<DiscussionPage> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true); // Kembalikan true untuk menyegarkan ForumScreen
+        // Kembalikan ke halaman sebelumnya (ForumScreen), dengan status refresh
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -183,21 +234,19 @@ class _DiscussionPageState extends State<DiscussionPage> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Color(0xFFFF9900), // Warna tombol back
+          color: Color(0xFFFF9900), // Warna ikon back
         ),
         title: Text(
           currentForum.fields.title,
-          style: const TextStyle(
-            color: Color(0xFFFF9900), // Warna teks
-          ),
+          style: const TextStyle(color: Color(0xFFFF9900)),
         ),
         backgroundColor: const Color(0xFF111111),
         actions: [
-          // Tombol Edit
+          // Tombol Edit Forum
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.blue),
             onPressed: () {
-              // Navigasi ke halaman EditForumPage dengan mengirimkan data forum
+              // Navigasi ke halaman EditForumPage dengan data forum
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -207,8 +256,10 @@ class _DiscussionPageState extends State<DiscussionPage> {
                 if (value != null && value is Map<String, String>) {
                   setState(() {
                     // Update currentForum dengan data yang diubah
-                    currentForum.fields.title = value['title'] ?? currentForum.fields.title;
-                    currentForum.fields.content = value['content'] ?? currentForum.fields.content;
+                    currentForum.fields.title =
+                        value['title'] ?? currentForum.fields.title;
+                    currentForum.fields.content =
+                        value['content'] ?? currentForum.fields.content;
                   });
                   // Kembalikan data yang diupdate ke ForumScreen
                   Navigator.pop(context, value);
@@ -216,7 +267,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
               });
             },
           ),
-          // Tombol Delete
+          // Tombol Delete Forum
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () async {
@@ -246,19 +297,20 @@ class _DiscussionPageState extends State<DiscussionPage> {
           ),
         ],
       ),
+      // Konten
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tampilkan konten forum di bagian atas
+            // Tampilkan konten forum
             Text(
               currentForum.fields.content,
               style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 16),
 
-            // Expanded agar daftar komentar memenuhi sisa ruang di layar
+            // Bagian daftar komentar (FutureBuilder)
             Expanded(
               child: FutureBuilder<List<Comment>>(
                 future: _commentsFuture,
@@ -270,50 +322,82 @@ class _DiscussionPageState extends State<DiscussionPage> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(child: Text('Belum ada komentar'));
                   } else {
-                    // Tampilkan komentar di sini
-                    var comments = snapshot.data!;
+                    final comments = snapshot.data!;
+                    // Tampilkan komentar
                     return ListView.builder(
                       itemCount: comments.length,
                       itemBuilder: (context, index) {
                         final comment = comments[index];
+                        final fields = comment.fields;
+
+                        // Apakah user telah men-like komentar?
+                        final isLiked = fields.likes.contains(_currentUserId);
+
                         return Card(
                           color: Colors.grey[900],
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(
-                              comment.fields.content,
+                              fields.content,
                               style: const TextStyle(color: Colors.white),
                             ),
                             subtitle: Text(
-                              'Oleh userId: ${comment.fields.user}',
+                              'Oleh userId: ${fields.user}',
                               style: const TextStyle(color: Colors.grey),
                             ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () async {
-                                // Tampilkan dialog konfirmasi sebelum menghapus
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text('Konfirmasi Hapus'),
-                                    content: const Text('Yakin ingin menghapus komentar ini?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx, false),
-                                        child: const Text('Batal'),
+                            // Tampilkan aksi di trailing
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Tombol Hapus Komentar
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('Konfirmasi Hapus'),
+                                        content: const Text(
+                                            'Yakin ingin menghapus komentar ini?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, false),
+                                            child: const Text('Batal'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, true),
+                                            child: const Text('Hapus'),
+                                          ),
+                                        ],
                                       ),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx, true),
-                                        child: const Text('Hapus'),
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                    );
 
-                                if (confirm == true) {
-                                  await deleteComment(comment.pk);
-                                }
-                              },
+                                    if (confirm == true) {
+                                      await deleteComment(comment.pk);
+                                    }
+                                  },
+                                ),
+                                // Tombol Like
+                                IconButton(
+                                  icon: Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isLiked ? Colors.red : Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    likeComment(comment.pk);
+                                  },
+                                ),
+                                // Jumlah Like
+                                Text(
+                                  '${fields.likes.length}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -326,14 +410,14 @@ class _DiscussionPageState extends State<DiscussionPage> {
           ],
         ),
       ),
-      // Tambahkan tombol Add Comment
+
+      // FloatingActionButton untuk menambah komentar
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCommentDialog,
         backgroundColor: Colors.orange,
         child: const Icon(Icons.add_comment, color: Colors.white),
         tooltip: 'Tambah Komentar',
       ),
-      // Tambahkan warna latar belakang (opsional)
       backgroundColor: const Color(0xFF000000),
     );
   }
