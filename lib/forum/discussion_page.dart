@@ -73,6 +73,36 @@ class _DiscussionPageState extends State<DiscussionPage> {
     }
   }
 
+  // Fungsi untuk DELETE comment ke API
+  Future<void> deleteComment(String commentId) async {
+    final request = context.read<CookieRequest>();
+    final url = Uri.parse('http://127.0.0.1:8000/api/discussion/comments/$commentId/delete/');
+
+    final response = await request.post(
+      url.toString(),
+      {}, // Payload kosong karena API hanya membutuhkan comment_id dari URL
+    );
+
+    if (response['status'] == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Komentar berhasil dihapus'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() {
+        _commentsFuture = fetchComments(currentForum.pk);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message'] ?? 'Gagal menghapus komentar'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   // Fungsi untuk menampilkan dialog Add Comment
   void _showAddCommentDialog() {
     showDialog(
@@ -245,31 +275,45 @@ class _DiscussionPageState extends State<DiscussionPage> {
                     return ListView.builder(
                       itemCount: comments.length,
                       itemBuilder: (context, index) {
+                        final comment = comments[index];
                         return Card(
                           color: Colors.grey[900],
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(
-                              comments[index].fields.content,
+                              comment.fields.content,
                               style: const TextStyle(color: Colors.white),
                             ),
                             subtitle: Text(
-                              'Oleh userId: ${comments[index].fields.user}',
+                              'Oleh userId: ${comment.fields.user}',
                               style: const TextStyle(color: Colors.grey),
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Tombol Edit
-                                // Tombol Delete
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () {
-                                    // Implementasi Delete Komentar
-                                    // Misalnya, konfirmasi dan panggil API delete
-                                  },
-                                ),
-                              ],
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                // Tampilkan dialog konfirmasi sebelum menghapus
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Konfirmasi Hapus'),
+                                    content: const Text('Yakin ingin menghapus komentar ini?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, false),
+                                        child: const Text('Batal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        child: const Text('Hapus'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  await deleteComment(comment.pk);
+                                }
+                              },
                             ),
                           ),
                         );
