@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/rumahmakan_model.dart';
 import '../widgets/rumahmakan_card.dart';
+import '../../landing/widgets/navbar.dart';
+// import '../../landing/widgets/logout.dart';
 
 class TokoPage extends StatefulWidget {
   const TokoPage({super.key});
@@ -47,6 +49,7 @@ class _TokoPageState extends State<TokoPage> {
       ),
       home: Scaffold(
         // Removed the AppBar as per your request
+        bottomNavigationBar: const BottomNavBar(currentIndex: 1,),
         body: FutureBuilder<List<RumahMakan>>(
           future: _futureRumahMakan,
           builder: (context, snapshot) {

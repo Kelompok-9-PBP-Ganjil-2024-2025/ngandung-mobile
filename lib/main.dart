@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:ngandung_mobile/rating/screens/toko.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.orange,
             ).copyWith(secondary: Colors.orange[400]),
           ),
-          home: const TokoPage()),
+          home: const LoginPage()),
     );
   }
 }
