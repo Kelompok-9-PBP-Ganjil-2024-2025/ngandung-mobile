@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:ngandung_mobile/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -15,9 +17,7 @@ class _LogoutButtonState extends State<LogoutButton> {
 
   void _logout(BuildContext context) async {
     final req = context.read<CookieRequest>();
-    final response = await req.logout(
-      "http://127.0.0.1:8000/auth/logout/"
-    );
+    final response = await req.logout("http://127.0.0.1:8000/auth/logout/");
     String message = response["message"];
     if (context.mounted) {
       if (response['status']) {

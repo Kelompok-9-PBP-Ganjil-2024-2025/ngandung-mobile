@@ -13,13 +13,13 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _questionController = TextEditingController();
   bool _isActive = true;
-  List<TextEditingController> _choicesControllers = [
+  final List<TextEditingController> _choicesControllers = [
     TextEditingController(),
     TextEditingController(),
   ];
 
   Future<void> _createPoll(CookieRequest request) async {
-    final url = 'http://127.0.0.1:8000/polling-makanan/create/';
+    const url = 'http://127.0.0.1:8000/polling-makanan/create/';
 
     // Collecting data
     Map<String, dynamic> pollData = {
@@ -41,7 +41,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
       // Check response status
       if (response['status'] == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Poll created successfully!')),
+          const SnackBar(content: Text('Poll created successfully!')),
         );
         Navigator.pop(context);
       } else {
@@ -53,7 +53,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
     } catch (error) {
       print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred')),
+        const SnackBar(content: Text('An error occurred')),
       );
     }
   }
@@ -62,7 +62,9 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   @override
   void dispose() {
     _questionController.dispose();
-    _choicesControllers.forEach((controller) => controller.dispose());
+    for (var controller in _choicesControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -72,9 +74,9 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('Create Poll'),
+          title: const Text('Create Poll'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -89,7 +91,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
             children: [
               TextFormField(
                 controller: _questionController,
-                decoration: InputDecoration(labelText: 'Poll Question'),
+                decoration: const InputDecoration(labelText: 'Poll Question'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a question';
@@ -98,7 +100,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                 },
               ),
               SwitchListTile(
-                title: Text('Is Active'),
+                title: const Text('Is Active'),
                 value: _isActive,
                 onChanged: (value) {
                   setState(() {
@@ -121,7 +123,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: const Icon(Icons.delete),
                           onPressed: () {
                             setState(() {
                               _choicesControllers.removeAt(index);
@@ -139,17 +141,17 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                     _choicesControllers.add(TextEditingController());
                   });
                 },
-                icon: Icon(Icons.add),
-                label: Text('Add Choice'),
+                icon: const Icon(Icons.add),
+                label: const Text('Add Choice'),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _createPoll(request);
                   }
                 },
-                child: Text('Create Poll'),
+                child: const Text('Create Poll'),
               ),
             ],
           ),

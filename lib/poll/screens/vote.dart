@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 class VoteScreen extends StatefulWidget {
   final String pollId;
 
-  const VoteScreen({Key? key, required this.pollId}) : super(key: key);
+  const VoteScreen({super.key, required this.pollId});
 
   @override
   State<VoteScreen> createState() => _VoteScreenState();

@@ -19,7 +19,7 @@ class DetailRumahMakanPage extends StatefulWidget {
 }
 
 class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
-  bool _isSuperuser = false;
+  final bool _isSuperuser = false;
 
   @override
   void initState() {
@@ -279,7 +279,7 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
                 const SizedBox(height: 10),
                 //*===========================================Favorite Button===========================================
                 isLoadingFavorite
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(),
                       )
                     : ElevatedButton.icon(
