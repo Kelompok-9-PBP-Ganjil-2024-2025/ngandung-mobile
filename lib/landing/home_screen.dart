@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:ngandung_mobile/landing/widgets/logout.dart';
 import 'package:ngandung_mobile/landing/widgets/navbar.dart';
 import 'package:ngandung_mobile/store/models/makanan.dart';
 import 'package:ngandung_mobile/store/screens/makanan_form.dart';
@@ -310,6 +311,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: const LogoutButton(),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
