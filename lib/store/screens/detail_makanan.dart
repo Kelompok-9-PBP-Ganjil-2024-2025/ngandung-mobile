@@ -321,6 +321,14 @@ class _DetailRumahMakanState extends State<DetailRumahMakanPage> {
                                   backgroundColor: Colors.orange,
                                 ),
                               );
+                              // Kirimkan info bahwa data berubah ke halaman sebelumnya
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailRumahMakanPage(id: widget.id),
+                                ),
+                                result: true, // Informasikan bahwa data berubah
+                              );
                             } else {
                               // Tambah ke favorit
                               final response = await request.post(

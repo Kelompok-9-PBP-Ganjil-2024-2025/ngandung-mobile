@@ -115,9 +115,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      HomeScreen()), // Ganti HomePage dengan nama halaman utama Anda
+              MaterialPageRoute(builder: (context) => HomeScreen()),
               (route) => false,
             );
           },
@@ -379,7 +377,15 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                                                           id: relatedFoodId, // Gunakan id makanan
                                                         ),
                                                       ),
-                                                    );
+                                                    ).then((hasUpdated) {
+                                                      if (hasUpdated == true) {
+                                                        // Jika ada perubahan, panggil ulang fetchFavorites untuk memperbarui data
+                                                        CookieRequest request =
+                                                            context.read<
+                                                                CookieRequest>();
+                                                        fetchFavorites(request);
+                                                      }
+                                                    });
                                                   }
                                                 : null, // Disable tombol jika tidak ada makanan terkait
                                             child: Text(
