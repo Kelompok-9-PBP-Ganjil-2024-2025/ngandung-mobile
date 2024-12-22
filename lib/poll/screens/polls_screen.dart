@@ -27,7 +27,6 @@ class _PollsScreenState extends State<PollsScreen> {
 
       return data.where((d) => d != null).map((d) => Poll.fromJson(d)).toList();
     } catch (e) {
-      print('Error fetching polls: $e');
       return [];
     }
   }
@@ -40,7 +39,7 @@ class _PollsScreenState extends State<PollsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
+    context.watch<CookieRequest>();
 
     return Scaffold(
       appBar: AppBar(
