@@ -1,4 +1,6 @@
 // edit_forum.dart
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +10,7 @@ import 'models/forum_model.dart';
 class EditForumPage extends StatefulWidget {
   final Forum forum;
 
-  const EditForumPage({Key? key, required this.forum}) : super(key: key);
+  const EditForumPage({super.key, required this.forum});
 
   @override
   State<EditForumPage> createState() => _EditForumPageState();

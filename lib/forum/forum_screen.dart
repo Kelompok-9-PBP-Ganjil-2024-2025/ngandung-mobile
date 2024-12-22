@@ -1,5 +1,3 @@
-// forum_screen.dart
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -8,7 +6,7 @@ import 'discussion_page.dart';
 import 'add_forum.dart';
 
 class ForumScreen extends StatefulWidget {
-  const ForumScreen({Key? key}) : super(key: key);
+  const ForumScreen({super.key});
 
   @override
   State<ForumScreen> createState() => _ForumScreenState();
@@ -74,7 +72,6 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         _errorMessage = 'An error occurred while fetching forums.';
         _isLoading = false;
       });
-      print('Error fetching forums: $e');
     }
   }
 
@@ -117,7 +114,6 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
         _errorMessage = 'An error occurred while searching forums.';
         _isLoading = false;
       });
-      print('Error searching forums: $e');
     }
   }
 
@@ -232,17 +228,17 @@ class _ForumScreenState extends State<ForumScreen> with SingleTickerProviderStat
                   ),
                 )
               : _forums.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.forum_outlined,
                             color: Color(0xFFFF9900),
                             size: 48,
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
+                          SizedBox(height: 16),
+                          Text(
                             'No forums found',
                             style: TextStyle(
                               color: Color(0xFF111111),

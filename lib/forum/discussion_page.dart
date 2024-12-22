@@ -1,17 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
-import 'package:timeago/timeago.dart' as timeago;
-
 import 'models/forum_model.dart';
 import 'models/comment_model.dart';
 import 'edit_forum.dart';
 
 class DiscussionPage extends StatefulWidget {
   final Forum forum;
-  const DiscussionPage({Key? key, required this.forum}) : super(key: key);
+  const DiscussionPage({super.key, required this.forum});
 
   @override
   State<DiscussionPage> createState() => _DiscussionPageState();
@@ -24,9 +24,6 @@ class _DiscussionPageState extends State<DiscussionPage> {
   
   /// Menyimpan ID user yang sedang login
   int _currentUserId = -1;
-
-  /// Animasi Like
-  bool _isLikeAnimating = false;
 
   @override
   void initState() {
@@ -41,7 +38,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   /// 1. Mendapatkan user.id dari endpoint Django /api/current-user/
   Future<void> _fetchCurrentUserId() async {
     final request = context.read<CookieRequest>();
-    final url = 'http://127.0.0.1:8000/api/current-user/';
+    const url = 'http://127.0.0.1:8000/api/current-user/';
     try {
       final response = await request.get(url);
       if (response['status'] == 'success') {
@@ -201,7 +198,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: 'Write your comment...',
-              hintStyle: TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(color: Colors.grey),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(color: Color(0xFFFF9900)),
@@ -310,10 +307,10 @@ class _DiscussionPageState extends State<DiscussionPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCommentDialog,
         backgroundColor: const Color(0xFFFF9900),
+        elevation: 4,
         child: const Icon(Icons.add_comment_rounded, color: Colors.white)
             .animate(onPlay: (controller) => controller.repeat())
             .shimmer(duration: const Duration(seconds: 2)),
-        elevation: 4,
       ).animate().scale(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
@@ -503,7 +500,6 @@ class _DiscussionPageState extends State<DiscussionPage> {
   }
 
   void _handleLike(Comment comment) {
-    setState(() => _isLikeAnimating = true);
     likeComment(comment.pk);
   }
 
