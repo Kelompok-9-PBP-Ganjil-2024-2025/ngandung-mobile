@@ -55,7 +55,7 @@ class _ForumScreenState extends State<ForumScreen>
     try {
       // Replace with your actual API endpoint
       final response = await http.get(Uri.parse(
-          'http://127.0.0.1:8000/api/forum')); // Update with your IP or use 10.0.2.2 for Android emulator
+          'http://127.0.0.1:8000/api/forum'));
 
       if (response.statusCode == 200) {
         // Parse the JSON data
