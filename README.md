@@ -4,6 +4,8 @@
 
 Download here: [Ngandung Mobile](https://install.appcenter.ms/orgs/ngandung-24/apps/ngandung/distribution_groups/public/releases/1)
 
+Web App source here: [Ngandung Web App](https://github.com/Kelompok-9-PBP-Ganjil-2024-2025/ngandung)
+
 ### Daftar Isi
 
 1. [Nama-nama anggota kelompok](#1-nama-nama-anggota-kelompok)
